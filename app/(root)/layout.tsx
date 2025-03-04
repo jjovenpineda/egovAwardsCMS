@@ -2,6 +2,9 @@
 
 import SideBar from "@/components/shared/side-bar";
 import TopBar from "@/components/shared/top-bar";
+import { storage } from "@/utils/useStorage";
+import { m } from "motion/react";
+import { useEffect, useState } from "react";
 /* import useInactivityTimeout from "@/hooks/use-inactibe-timeout";
  */
 export default function RootLayout({
@@ -9,14 +12,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  /* const { isInactive, resetInactivity } = useInactivityTimeout();
-    const handleUserResponse = (response: string) => {
-    if (response === "yes") {
-      resetInactivity();
-    } else {
-      localStorage.clear();
-    }
-  }; */
+  const [hasAnimated, setHasAnimated] = useState(
+    JSON.parse(storage.getItem("hasAnimated") || "false")
+  );
+
+  useEffect(() => {
+    storage.setItem("hasAnimated", JSON.stringify(hasAnimated));
+  }, [hasAnimated]);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      storage.removeItem("hasAnimated");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
   return (
     <main className="flex bg-slate-50">
       <div>
@@ -25,7 +39,15 @@ export default function RootLayout({
 
       <div className="w-full">
         <TopBar />
-        {children}
+        <m.div
+          initial={!hasAnimated && { y: 100, opacity: 0 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          onAnimationComplete={() => setHasAnimated(true)}
+          className="px-16 py-8 "
+        >
+          {children}
+        </m.div>
       </div>
       {/*   {isInactive && (
         <div className="inactivity-dialog">

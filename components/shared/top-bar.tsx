@@ -71,8 +71,8 @@ export default function TopBar() {
         opacity: 0,
       }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 1, delay: 0.5 }}
-      className="flex items-center sticky top-0 shadow-sm p-3 justify-between w-full  bg-white "
+      transition={{ duration: 0.4, delay: 0.2 }}
+      className="flex items-center sticky top-0 shadow-[0_2px_4px_rgba(0,0,0,0.08)]  p-3 justify-between w-full  bg-white "
     >
       <Breadcrumb className="">
         <BreadcrumbList>
@@ -267,7 +267,7 @@ export default function TopBar() {
                 </Accordion>
                 <hr className="opacity-55 " />
               </SheetTitle>
-              <div className="space-y-1 cursor-pointer">
+              {/*      <div className="space-y-1 cursor-pointer">
                 {links.map((link, index) => (
                   <div key={index}>
                     {link.children ? (
@@ -372,7 +372,7 @@ export default function TopBar() {
                     )}
                   </div>
                 ))}
-              </div>
+              </div> */}
             </SheetHeader>
             <SheetDescription></SheetDescription>
           </SheetContent>

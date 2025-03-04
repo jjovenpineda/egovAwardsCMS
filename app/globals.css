@@ -94,8 +94,17 @@ body {
 }
 
 .animate-click {
-  @apply active:opacity-90 transition-colors duration-300 !important;
+  @apply active:opacity-90 transition-colors duration-200 !important;
 }
 .main-title {
   @apply text-slate-600 font-semibold text-xl;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }
