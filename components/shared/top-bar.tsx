@@ -84,8 +84,8 @@ export default function TopBar() {
       <Breadcrumb className="">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="#">
-              <LayoutDashboard /> Home
+            <BreadcrumbLink href="#" className="flex  items-center gap-1">
+              <LayoutDashboard size={15} /> Home
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
