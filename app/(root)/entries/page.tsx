@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-
+import Link from "next/link";
 import {
   Popover,
   PopoverContent,
@@ -20,6 +20,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
 import { useSearchParams } from "next/navigation";
 import {
   ChevronDown,
@@ -169,7 +179,7 @@ export default function Entries() {
       .max(50, "Number must not be above 50"),
   });
   return (
-    <div className="min-h-screen flex w-full  ">
+    <div className="min-h-screen flex w-full">
       <div className="space-y-2 h-full w-full">
         <h1 className="text-slate-600 font-bold text-2xl uppercase">
           {filterParams == "all"
@@ -277,7 +287,6 @@ export default function Entries() {
           </div>
         </div>
         <Table>
-          <TableCaption>A list of your recent invoices.</TableCaption>
           <TableHeader>
             <TableRow>
               {(() => {
@@ -410,19 +419,22 @@ export default function Entries() {
                       </div>
                     </TableCell>
                     <TableCell className="flex flex-col text-center space-y-1">
-                      <Button
-                        variant={"outline"}
-                        size={"sm"}
-                        className="bg-[#DBEAFE] hover:bg-[#bcd9ff] text-[#1E40AF] rounded-full w-min px-1"
+                      <Link
+                        href={{
+                          pathname: "entries/entry",
+                          query: { filter: "all", id: index },
+                        }}
+                        draggable={false}
+                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF] px-1.5 rounded-full flex gap-2 items-center p-1"
                       >
                         <Eye size={15} />
                         View Details
-                      </Button>
+                      </Link>
                       <Button
                         onClick={() => toggleQuickScore(index)}
                         variant={"outline"}
                         size={"sm"}
-                        className="bg-[#CCFBF1] hover:bg-[#b0f6e7] text-[#115E59] rounded-full w-min px-1"
+                        className="bg-[#CCFBF1] hover:bg-[#b0f6e7] text-[#115E59] h-fit rounded-full w-min px-1.5 p-1"
                       >
                         <ClipboardCheckIcon size={15} />
                         Quickscore
@@ -430,7 +442,7 @@ export default function Entries() {
                       <Button
                         variant={"outline"}
                         size={"sm"}
-                        className="bg-[#F3F4F6] hover:bg-[#e3e3e3] text-[#1F2937] rounded-full w-min px-1"
+                        className="bg-[#F3F4F6] hover:bg-[#e3e3e3] text-[#1F2937] h-fit p-1 px-1.5 rounded-full w-min "
                       >
                         <Download size={15} />
                         Download
@@ -554,13 +566,23 @@ export default function Entries() {
               ));
             })()}
           </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={3}>Total</TableCell>
-              <TableCell className="text-right">$2,500.00</TableCell>
-            </TableRow>
-          </TableFooter>
         </Table>
+        <Pagination className="text-slate-500">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious href="#" />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="#">1</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext href="#" />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   );

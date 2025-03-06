@@ -54,7 +54,11 @@ export default function SideBar() {
   return (
     <AnimatePresence>
       <m.div
-        animate={{ opacity: 1, x: 0, width: isCollapsed ? "70px" : "230px" }}
+        animate={{
+          opacity: 1,
+          x: 0,
+          width: isCollapsed ? "70px" : "230px",
+        }}
         transition={{
           duration: 0.4,
           ease: "easeOut",
@@ -92,36 +96,49 @@ export default function SideBar() {
                       link.items.map((child, index) => (
                         <div key={index}>
                           <Link
+                            draggable={false}
                             href={{
                               pathname: child.href,
                               query: child.query,
                             }}
                             key={child.label}
                             onClick={() => setCurrentPath(child.href.slice(1))}
-                            className={`animate-click flex overflow-hidden items-center gap-2 p-2 px-2 group hover:bg-blue-950 w-full
-                  ${isCollapsed && "justify-center"} ${
+                            className={`flex overflow-hidden items-center gap-2 p-2 px-2 group hover:bg-blue-950 w-full
+                   ${isCollapsed && "justify-center"} ${
                               (!filter
                                 ? currentPath === child.href.slice(1)
                                 : filter === child.query?.filter) &&
-                              " bg-blue-950 border-l-4 border-blue-500"
+                              " bg-blue-950 border-blue-500 border-l-4 "
                             }`}
                           >
                             <child.icons
                               size={15}
                               className={`shrink-0  ${
-                                currentPath === child.href.slice(1)
+                                (
+                                  !filter
+                                    ? currentPath === child.href.slice(1)
+                                    : filter === child.query?.filter
+                                )
                                   ? "text-white"
                                   : "text-slate-400 "
                               }`}
                             />
+
                             {!isCollapsed && (
                               <m.p
                                 className={` text-sm font-semibold text-nowrap ${
-                                  currentPath === child.href.slice(1)
+                                  (
+                                    !filter
+                                      ? currentPath === child.href.slice(1)
+                                      : filter === child.query?.filter
+                                  )
                                     ? "text-white"
                                     : "text-slate-400 "
                                 }`}
-                                initial={{ opacity: 0, position: "relative" }}
+                                initial={{
+                                  opacity: 0,
+                                  position: "relative",
+                                }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 1 }}
