@@ -4,7 +4,7 @@ import SideBar from "@/components/shared/side-bar";
 import TopBar from "@/components/shared/top-bar";
 import { storage } from "@/utils/useStorage";
 import { m } from "motion/react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 /* import useInactivityTimeout from "@/hooks/use-inactibe-timeout";
  */
 export default function RootLayout({

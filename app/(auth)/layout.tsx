@@ -1,6 +1,7 @@
 import FloatingIcons from "@/components/shared/floating-icons";
 import { Footer } from "@/components/shared/footer";
 import Header from "@/components/shared/header";
+import { Suspense } from "react";
 
 export default function RootLayout({
   children,
@@ -11,7 +12,7 @@ export default function RootLayout({
     <main className="bg-slate-100">
       <Header />
       <FloatingIcons />
-      <div className="z-40">{children}</div>
+      {children}
       <Footer />
     </main>
   );
