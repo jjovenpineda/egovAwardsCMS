@@ -33,7 +33,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AlignJustify, LogOut, LogOutIcon, Settings } from "lucide-react";
+import {
+  AlignJustify,
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  LogOutIcon,
+  Settings,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { m } from "motion/react";
 import { deleteCookie } from "@/utils/utility";
@@ -72,12 +79,14 @@ export default function TopBar() {
       }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className="flex items-center sticky top-0 shadow-[0_2px_4px_rgba(0,0,0,0.08)]  p-3 justify-between w-full  bg-white "
+      className="flex items-center sticky top-0 shadow-[0_2px_4px_rgba(0,0,0,0.08)] px-16 p-3 justify-between w-full  bg-white "
     >
       <Breadcrumb className="">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="#">Home</BreadcrumbLink>
+            <BreadcrumbLink href="#">
+              <LayoutDashboard /> Home
+            </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -107,10 +116,10 @@ export default function TopBar() {
         <Popover>
           <PopoverTrigger>
             <div
-              className={`animate-click  flex  w-full gap-2 items-center rounded-md group justify-between hover:bg-current/90 `}
+              className={`animate-click border px-3 py-1.5 flex hover:bg-slate-100 w-full gap-2 items-center rounded-md group justify-between hover:bg-current/90 `}
             >
               <div className="flex items-center gap-2">
-                <div className="rounded-full size-9 overflow-hidden">
+                <div className="rounded-full size-6 overflow-hidden">
                   <img
                     src={"https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"}
                     alt=""
@@ -118,13 +127,12 @@ export default function TopBar() {
                   />
                 </div>
 
-                <div className="text-start text-nowrap">
+                <div className="flex gap-2 text-start text-nowrap">
                   <p className="text-xs text-slate-900 ">
-                    {/*  {userInfo?.fullname} */}John Doe
+                    {/*  {userInfo?.fullname} */}John Doe |{" "}
+                    <span className="text-slate-500">Admin</span>
                   </p>
-                  <p className="text-sm text-slate-800 ">
-                    {/* {userInfo?.email} */}JohnDoe@yopmail.com
-                  </p>
+                  <ChevronDown size={12} className=" h-4 w-4 text-slate-500" />
                 </div>
               </div>
 
@@ -138,23 +146,6 @@ export default function TopBar() {
           </PopoverTrigger>
           <PopoverContent side="bottom" className="mb-4  ">
             <div className="space-y-1">
-              <div className="flex w-full gap-2 items-center p-2 rounded-md justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="rounded-md size-9 overflow-hidden">
-                    <img
-                      src={"https://mdbcdn.b-cdn.net/img/new/avatars/2.webp"}
-                      alt=""
-                      className="object-cover size-full"
-                    />
-                  </div>
-
-                  <div className="text-start">
-                    <p className="text-sm ">John Doe</p>
-                    <p className="text-xs ">JohnDoe@yopmail.com</p>
-                  </div>
-                </div>
-              </div>
-              <Separator />
               <button className="animate-click flex w-full gap-2 items-center p-2 rounded-md hover:bg-slate-100">
                 <Settings size={15} className=" h-4 w-4 object-contain " />{" "}
                 <div className="text-sm ">Settings</div>

@@ -18,6 +18,7 @@ import { storage } from "@/utils/useStorage";
 
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Download, Eye } from "lucide-react";
+import Loading from "@/components/shared/loading";
 export default function Home() {
   const [hasAnimated, setHasAnimated] = useState(
     JSON.parse(storage.getItem("hasAnimated") || "false")
@@ -38,6 +39,7 @@ export default function Home() {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
+
   return (
     <div className="min-h-screen flex w-full ">
       <m.div
