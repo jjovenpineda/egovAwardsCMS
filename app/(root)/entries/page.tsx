@@ -224,6 +224,7 @@ export default function Entries() {
             <Popover>
               <PopoverTrigger className="text-slate-900 h-fit border group text-sm  flex items-center gap-2 bg-white p-2 px-3 rounded-lg">
                 <Sliders size={15} className="text-slate-500" />
+                {}
                 <div className="flex gap-1 items-center border p-2 rounded-full text-xs font-medium text-[#6B7280]">
                   test{" "}
                   <div className="flex items-center justify-center bg-[#E5E7EB] hover:bg-slate-300 transition-color duration-200 rounded-full size-3.5 ">
@@ -354,7 +355,10 @@ export default function Entries() {
 
               return data.map((item, index) => (
                 <React.Fragment key={index}>
-                  <TableRow key={index} className="border-b-0">
+                  <TableRow
+                    key={index}
+                    className="border-b-0 hover:bg-transparent"
+                  >
                     <TableCell className="font-medium">
                       <div className="">
                         <div className="font-semibold flex gap-1 ">

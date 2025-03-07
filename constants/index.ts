@@ -83,27 +83,15 @@ export const links = [
     icons: MapPin,
     items: [
       {
-        href: "######",
+        href: "/users",
         label: "Users",
         icons: Users,
         query: null,
       },
       {
-        href: "#######",
-        label: "Roles",
+        href: "/roles",
+        label: "Roles & Permissions",
         icons: UserCog,
-        query: null,
-      },
-      {
-        href: "########",
-        label: "Permission Group",
-        icons: FolderLock,
-        query: null,
-      },
-      {
-        href: "#########",
-        label: "Permissions",
-        icons: Unlock,
         query: null,
       },
     ],

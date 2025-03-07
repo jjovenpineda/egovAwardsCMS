@@ -94,7 +94,7 @@ export default function SideBar() {
                     {link.items &&
                       link.items.length > 0 &&
                       link.items.map((child, index) => (
-                        <>
+                        <React.Fragment key={index}>
                           {child.query != null ? (
                             <div key={index}>
                               <Link
@@ -190,7 +190,7 @@ export default function SideBar() {
                               </Link>
                             </div>
                           )}
-                        </>
+                        </React.Fragment>
                       ))}
                   </div>
                 ))}
