@@ -56,7 +56,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-export default function Entries() {
+export default function Page() {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get("filter");
   const [selected, setSelected] = useState<string[]>([""]);
@@ -292,33 +292,33 @@ export default function Entries() {
             <TableRow>
               {(() => {
                 const tableHeader = [
-                  "Application",
                   "LGU",
-                  "Project Name",
-                  "Category",
-                  "Ranking",
-                  "Action",
+                  "Province",
+                  "Region",
+                  "No. of Entries",
                 ];
                 return tableHeader.map((th, index) => (
                   <TableHead
                     key={index}
                     className={` font-medium ${
-                      th === "Application"
-                        ? "w-[167px]"
-                        : th == "LGU"
-                        ? "w-[208px]"
-                        : th === "Project Name"
-                        ? "w-[500px]"
-                        : th === "Ranking"
-                        ? "w-[0px] text-center"
-                        : th == "Category"
-                        ? "w-0 text-center"
-                        : th == "Action"
-                        ? "w-20 text-center"
+                      th === "LGU"
+                        ? ""
+                        : th == "Province"
+                        ? ""
+                        : th === "Region"
+                        ? ""
+                        : th === "No. of Entries"
+                        ? "w-[0] text-center"
                         : ""
                     }`}
                   >
-                    {th}
+                    <h3
+                      className={`${
+                        th === "No. of Entries" && "whitespace-nowrap"
+                      }`}
+                    >
+                      {th}
+                    </h3>
                   </TableHead>
                 ));
               })()}
@@ -360,101 +360,24 @@ export default function Entries() {
                     className="border-b-0 hover:bg-transparent"
                   >
                     <TableCell className="font-medium">
-                      <div className="">
-                        <div className="font-semibold flex gap-1 ">
-                          <h2 className="text-slate-900 text-base">25G2BCAL</h2>
-                          <div className="flex  font-bold gap-0.5 items-center text-emerald-800">
-                            <ClipboardCheckIcon size={12} />
-                            <h3 className="text-xs">92.10</h3>
-                          </div>
-                        </div>
-                        <h3 className="text-emerald-500 font-bold">
-                          GRADED | 01/26/2025
-                        </h3>
-                      </div>
+                      <h2 className="text-slate-900 text-base line-clamp-2">
+                        Calabanga
+                      </h2>{" "}
                     </TableCell>
                     <TableCell>
-                      <div className="text-base">
-                        <h2 className="text-slate-900 line-clamp-2">
-                          Calabanga
-                        </h2>{" "}
-                        <h3 className="line-clamp-1 text-slate-500 ">
-                          Camarines Sur{" "}
-                        </h3>
-                      </div>
+                      <h2 className="text-slate-500 text-base line-clamp-2">
+                        Camarines Sur
+                      </h2>{" "}
                     </TableCell>
                     <TableCell>
-                      <div className="text-base">
-                        <h2 className="text-slate-900 line-clamp-2">
-                          Lorem ipsum dolor sit amet, consectetur adipisicing
-                          elit. Nulla libero voluptatem ducimus. Deleniti
-                          veritatis qui temporibus alias numquam consectetur hic
-                          quasi eius impedit, assumenda itaque vel officia
-                          molestiae modi nemo.
-                        </h2>{" "}
-                        <a href="#" className="line-clamp-1 text-blue-400 ">
-                          www.govlinksolutions.com lorem
-                        </a>
-                      </div>
+                      <h2 className="text-slate-500 text-base line-clamp-2">
+                        Bicol (Region V)
+                      </h2>{" "}
                     </TableCell>
                     <TableCell className="text-center">
-                      <div>
-                        <TooltipProvider delayDuration={0}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <h2 className="font-medium text-base text-slate-900 cursor-pointer ">
-                                G2B
-                              </h2>
-                            </TooltipTrigger>
-                            <TooltipContent side="left">
-                              <p>Lorem ipsum dolor sit </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-
-                        <div className="bg-slate-100 text-[10px]  mx-auto px-2 w-fit rounded-full">
-                          5 SDGs
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="bg-[#CCFBF1] py-1.5 mx-auto px-2.5 w-fit rounded-full">
-                        {item.ranking}
-                      </div>
-                    </TableCell>
-                    <TableCell className="flex flex-col text-center space-y-1">
-                      <Link
-                        href={{
-                          pathname: "entries/entry",
-                          query: { filter: "all", id: index },
-                        }}
-                        draggable={false}
-                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF] px-1.5 rounded-full flex gap-2 items-center p-1"
-                      >
-                        <Eye size={15} />
-                        View Details
-                      </Link>
-                      <Button
-                        onClick={() => toggleQuickScore(index)}
-                        variant={"outline"}
-                        size={"sm"}
-                        className={`${
-                          quickScoreList.includes(index.toString())
-                            ? "bg-teal-500 hover:bg-teal-500 text-slate-50 hover:text-slate-50"
-                            : "bg-[#CCFBF1] hover:bg-[#b0f6e7] text-[#115E59] hover:text-[#115E59]"
-                        }     h-fit rounded-full w-min px-1.5 p-1`}
-                      >
-                        <ClipboardCheckIcon size={15} />
-                        Quickscore
-                      </Button>
-                      <Button
-                        variant={"outline"}
-                        size={"sm"}
-                        className="bg-[#F3F4F6] hover:bg-[#e3e3e3] text-[#1F2937] h-fit p-1 px-1.5 rounded-full w-min "
-                      >
-                        <Download size={15} />
-                        Download
-                      </Button>
+                      <h2 className="text-slate-900 text-base line-clamp-2">
+                        4
+                      </h2>{" "}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -575,22 +498,25 @@ export default function Entries() {
             })()}
           </TableBody>
         </Table>
-        <Pagination className="text-slate-500">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious href="#" />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <div>
+          <div className="text-base text-slate-500"></div>
+          <Pagination className="text-slate-500">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious href="#" />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#">1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="#" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       </div>
     </div>
   );

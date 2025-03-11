@@ -27,7 +27,7 @@ export default function CustomBadge({
           colors[color] || "bg-gray-100 text-gray-500 h-min"
         } ${className}`}
       >
-        {icon && <span>{icon}</span>}
+        {icon && <span className="mr-1">{icon}</span>}
         {message}
       </Badge>
     </div>

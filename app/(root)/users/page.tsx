@@ -74,6 +74,7 @@ import {
 } from "@/components/ui/accordion";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import CustomBadge from "@/components/shared/custom-badge";
+import { toast } from "@/hooks/use-toast";
 const data = [
   {
     name: "John Doe",
@@ -170,7 +171,7 @@ export default function Page() {
               <Button
                 variant={"outline"}
                 size={"sm"}
-                className="rounded-full py-3 text-sm text-slate-500 px-2"
+                className="rounded-full py-3 text-sm bg-transparent text-slate-500 px-2"
               >
                 Reset <RotateCcw size={9} />
               </Button>
@@ -291,26 +292,30 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
       }}
     >
       {({ values, setFieldValue, resetForm }) => {
+        const [open, setOpen] = useState(false);
+
         return (
           <Form>
             <div className="flex justify-center gap-0.5 mx-auto">
-              <Dialog>
-                <DialogTrigger asChild>{children}</DialogTrigger>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild onClick={() => setOpen(true)}>
+                  {children}
+                </DialogTrigger>
                 <DialogContent
                   className={`${
-                    action == "delete" ? "sm:max-w-lg" : "sm:max-w-3xl"
+                    action == "delete" ? "sm:max-w-sm" : "sm:max-w-3xl"
                   }  px-10 py-6`}
                 >
                   <DialogTitle className="text-blue-900 uppercase gont-bold text-[18px]">
                     {action == "edit" && " Edit User"}
                     {action == "add" && " Add User"}
+                    {action == "delete" && " Delete User"}
                   </DialogTitle>
                   {action == "delete" && (
-                    <div className="flex items-center flex-col gap-4 pt-8 pb-6">
-                      <h2 className="text-md font-semibold mx-auto text-slate-900 px-10">
-                        Are you sure you want to delete?
+                    <div className="flex flex-col gap-4 pt-4 pb-6">
+                      <h2 className="text-sm font-semibold ">
+                        Are you sure you want to delete this user?{" "}
                       </h2>
-                      <h3 className="text-slate-900 te">lorem ipsum</h3>
                     </div>
                   )}
                   {["edit", "add"].includes(action) && (
@@ -411,15 +416,24 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                   )}
                   {action == "delete" ? (
                     <DialogFooter className="flex gap-2">
-                      <DialogClose className="w-full rounded-md bg-slate-100 hover:bg-slate-200">
-                        Cancel
+                      <DialogClose className="w-full flex text-[15px] items-center gap-2 justify-center rounded-md bg-transparent outline outline-black outline-1 hover:bg-slate-100">
+                        <X size={15} /> Cancel
                       </DialogClose>
                       <Button
                         type="button"
-                        /*  onClick={() => setAction("setup")} */
-                        className={`bg-[#1F2937] flex justify-center w-full gap-2 text-sm font-semibold items-center transition-colors duration-300  hover:bg-slate-700 text-white p-2.5 px-6 rounded-md`}
+                        onClick={() => {
+                          setOpen(false);
+                          toast({
+                            variant: "success",
+                            title: "User Deleted",
+                            description:
+                              "The user has been successfully deleted.",
+                            duration: 2500,
+                          });
+                        }}
+                        className="w-full flex text-[15px] items-center gap-2 justify-center rounded-md bg-transparent outline outline-red-500 outline-1 text-red-500  hover:bg-slate-100"
                       >
-                        Submit
+                        <Trash2 size={13} className="mb-1" /> Delete
                       </Button>
                     </DialogFooter>
                   ) : (
@@ -432,7 +446,19 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                       </DialogClose>
                       <Button
                         type="submit"
-                        /*  onClick={() => setAction("setup")} */
+                        onClick={() => {
+                          setOpen(false);
+                          toast({
+                            variant: "success",
+                            title: `User ${
+                              action == "edit" ? "updated" : "created"
+                            }`,
+                            description: `The user has been successfully ${
+                              action == "edit" ? "updated" : "created"
+                            }.`,
+                            duration: 2500,
+                          });
+                        }}
                         className={`bg-[#1F2937] flex justify-center w-fit gap-2 text-sm font-semibold items-center transition-colors duration-300  hover:bg-slate-700 text-white p-2.5 px-4 rounded-md`}
                       >
                         <Save size={10} /> {action == "edit" && "Update"}

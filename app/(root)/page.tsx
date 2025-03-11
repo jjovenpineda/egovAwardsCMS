@@ -19,6 +19,7 @@ import { storage } from "@/utils/useStorage";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Download, Eye } from "lucide-react";
 import Loading from "@/components/shared/loading";
+import CustomBadge from "@/components/shared/custom-badge";
 export default function Home() {
   const [hasAnimated, setHasAnimated] = useState(
     JSON.parse(storage.getItem("hasAnimated") || "false")
@@ -106,9 +107,16 @@ export default function Home() {
               <Image src={folder3} alt="folder icon" />
               <div>
                 <h2 className="font-semibold text-xs text-slate-500">
-                  COMPLETED/GRADED{" "}
+                  GRADED{" "}
                 </h2>
                 <h2 className="text-[#14B8A6] font-semibold text-2xl">145</h2>
+              </div>
+            </div>
+            <div className="flex gap-4 w-full  rounded-xl bg-white shadow-[0_4px_10px_rgba(0,0,9,0.05)] p-6">
+              <Image src={folder3} alt="folder icon" />
+              <div>
+                <h2 className="font-semibold text-xs text-slate-500">FINAL </h2>
+                <h2 className="text-[#14B8A6] font-semibold text-2xl">32</h2>
               </div>
             </div>
           </div>
@@ -127,7 +135,7 @@ export default function Home() {
                 <Image src={building} alt="folder icon" />
                 <div>
                   <h2 className="font-semibold text-xs text-slate-500">
-                    LGUs{" "}
+                    PROVINCES
                   </h2>
                   <h2 className="text-slate-500 font-semibold text-2xl">85</h2>
                 </div>
@@ -136,7 +144,7 @@ export default function Home() {
                 <Image src={building} alt="folder icon" />
                 <div>
                   <h2 className="font-semibold text-xs text-slate-500">
-                    LGUs{" "}
+                    REGIONS
                   </h2>
                   <h2 className="text-slate-500 font-semibold text-2xl">85</h2>
                 </div>
@@ -186,14 +194,12 @@ export default function Home() {
                 <h2 className="text-blue-900 font-semibold text-base">
                   Overall Ranking
                 </h2>
-                <Button
-                  type="button"
-                  size={"sm"}
-                  variant={"ghost"}
+                <CustomBadge
+                  color="blue"
+                  message="View Details"
+                  icon={<Eye size={15} />}
                   className="rounded-full bg-blue-100 hover:bg-blue-200 hover:text-[#1E40AF]  text-[10px] text-[#1E40AF] font-medium"
-                >
-                  <Eye /> View Details
-                </Button>
+                />
               </div>
               <li className="space-y-2 text-slate-500 font-semibold text-xl">
                 <div className="flex gap-2 items-center">
@@ -279,14 +285,12 @@ export default function Home() {
                 <h2 className="text-blue-900 font-semibold text-base">
                   G2A Category{" "}
                 </h2>
-                <Button
-                  type="button"
-                  size={"sm"}
-                  variant={"ghost"}
+                <CustomBadge
+                  color="blue"
+                  message="View Details"
+                  icon={<Eye size={15} />}
                   className="rounded-full bg-blue-100 hover:bg-blue-200 hover:text-[#1E40AF]  text-[10px] text-[#1E40AF] font-medium"
-                >
-                  <Eye /> View Details
-                </Button>
+                />
               </div>
               <p className="text-slate-500 font-medium text-[11px]">
                 {" "}

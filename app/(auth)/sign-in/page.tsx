@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, m } from "motion/react";
 import { encrypt, setCookie } from "@/utils/utility";
-import { apiPost } from "@/utils/api";
+import { apiGet, apiPost } from "@/utils/api";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
 import egov2 from "@/public/assets/images/egov2.webp";
@@ -46,7 +46,7 @@ export default function SignInPage() {
   ) => {
     setIsLoading(true);
 
-    /*   await apiPost("/api/auth/login", values)
+    await apiPost("/api/auth/login", values)
       .then((res) => {
         const { success, message, data } = res;
         if (success) {
@@ -72,15 +72,15 @@ export default function SignInPage() {
           description: "Invalid email or password",
           duration: 2000,
         });
-      }); */
+      });
     /* router.push("/"); */
 
-    setTimeout(() => {
+    /*  setTimeout(() => {
       setShowLoading(true);
       setTimeout(() => {
         router.push("/");
       }, 2500);
-    }, 2000);
+    }, 2000); */
   };
   return (
     <div>
@@ -136,7 +136,7 @@ export default function SignInPage() {
                                       type="email"
                                       name="email"
                                       autoComplete="off"
-                                      placeholder="Joe@email.com"
+                                      placeholder="johndoe@egovawards.com"
                                       as={Input}
                                       className="space-y-8 rounded-md bg-white"
                                     />
@@ -160,7 +160,7 @@ export default function SignInPage() {
                                         }
                                         autoComplete="off"
                                         name="password"
-                                        placeholder="*****"
+                                        placeholder="••••••••"
                                         as={Input}
                                         className="space-y-8 rounded-md bg-white"
                                       />
