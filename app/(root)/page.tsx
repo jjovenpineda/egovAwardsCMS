@@ -20,7 +20,9 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, Download, Eye } from "lucide-react";
 import Loading from "@/components/shared/loading";
 import CustomBadge from "@/components/shared/custom-badge";
+import { Input } from "@/components/ui/input";
 export default function Home() {
+  const [entryRange, setEntryRange] = useState([]);
   const [hasAnimated, setHasAnimated] = useState(
     JSON.parse(storage.getItem("hasAnimated") || "false")
   );
@@ -77,8 +79,84 @@ export default function Home() {
                   className="transition-transform duration-200 group-data-[state=open]:rotate-180"
                 />
               </PopoverTrigger>
-              <PopoverContent align="start">
-                Place content for the popover here.
+              <PopoverContent align="end">
+                {(() => {
+                  const downloadOptions = [
+                    { label: "All Entries (1-145)" },
+                    { label: "Top 10" },
+                    { label: "Top 20" },
+                    { label: "Top 50" },
+                  ];
+                  return (
+                    <>
+                      <div>
+                        <ul className="text-sm ">
+                          {downloadOptions.map((item, index) => (
+                            <li
+                              key={index}
+                              className="flex items-center p-2 text-slate-900 hover:bg-slate-100 hover:text-blue-700 rounded-md cursor-pointer gap-3"
+                            >
+                              <Download size={15} /> {item.label}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <hr className="my-2" />
+                      <div className="flex items-center gap-4">
+                        <h3 className="text-xs text-slate-500">Custom</h3>
+                        <div className="flex gap-2 items-center">
+                          <Input
+                            type="text"
+                            maxLength={2}
+                            placeholder="1"
+                            autoComplete="off"
+                            onChange={(e: any) => {
+                              e.target.value = e.target.value.replace(
+                                /\D/g,
+                                ""
+                              );
+                              if (e.target.value.length > 2) {
+                                e.target.value = e.target.value.slice(0, 2);
+                              }
+                              /*  if (Number(e.target.value > 50)) {
+                                setFieldValue("impact", 50);
+                              } else {
+                                setFieldValue("impact", Number(e.target.value));
+                              } */
+                            }}
+                            className=" border-0 border-b rounded-none border-blue-500 w-11"
+                          />
+                          -
+                          <Input
+                            type="text"
+                            maxLength={2}
+                            placeholder="15"
+                            autoComplete="off"
+                            onChange={(e: any) => {
+                              /*  e.target.value = e.target.value.replace(
+                                /\D/g,
+                                ""
+                              );
+                              if (e.target.value.length > 2) {
+                                e.target.value = e.target.value.slice(0, 2);
+                              }
+                              if (Number(e.target.value > 50)) {
+                                setEntryRange(entryRange[0][e.target.value]);
+                              } else {
+                                setEntryRange(entryRange[0][e.target.value]);
+                              } */
+                            }}
+                            className=" border-0 border-b rounded-none border-blue-500 w-11"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex text-sm mt-3 items-center p-2 text-slate-900 hover:bg-slate-100 hover:text-blue-700 rounded-md cursor-pointer gap-3">
+                        <Download size={15} />
+                        Rank {`(15-30)`}
+                      </div>
+                    </>
+                  );
+                })()}
               </PopoverContent>
             </Popover>
           </div>

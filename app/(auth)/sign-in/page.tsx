@@ -23,8 +23,10 @@ import egov2 from "@/public/assets/images/egov2.webp";
 import dict from "@/public/assets/images/dict2.webp";
 import { Label } from "@/components/ui/label";
 import Loading from "@/components/shared/loading";
+import { storage } from "@/utils/useStorage";
 
 export default function SignInPage() {
+  const { setItem } = storage;
   const router = useRouter();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isPasswordVisible2, setIsPasswordVisible2] = useState(false);
@@ -50,18 +52,15 @@ export default function SignInPage() {
       .then((res) => {
         const { success, message, data } = res;
         if (success) {
-          window.localStorage.setItem(
-            "account",
-            data && encrypt(JSON.stringify(data))
-          );
+          setItem("account_data", encrypt(JSON.stringify(data)));
           setCookie("authToken", encrypt(data.token) ?? "");
-          router.push("/");
+          setTimeout(() => {
+            setShowLoading(true);
+            setTimeout(() => {
+              router.push("/");
+            }, 2500);
+          }, 2000);
         }
-        toast({
-          title: "Login Success!",
-          description: message,
-          duration: 2000,
-        });
       })
       .catch((e) => {
         console.log(e);
@@ -69,18 +68,11 @@ export default function SignInPage() {
         setIsLoading(false);
         toast({
           title: "Login failed",
+          variant: "destructive",
           description: "Invalid email or password",
           duration: 2000,
         });
       });
-    /* router.push("/"); */
-
-    /*  setTimeout(() => {
-      setShowLoading(true);
-      setTimeout(() => {
-        router.push("/");
-      }, 2500);
-    }, 2000); */
   };
   return (
     <div>

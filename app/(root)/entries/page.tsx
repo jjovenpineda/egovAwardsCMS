@@ -36,6 +36,7 @@ import {
   ClipboardCheckIcon,
   Download,
   Eye,
+  Lock,
   RotateCcw,
   Search,
   Sliders,
@@ -368,7 +369,10 @@ export default function Entries() {
                             <h3 className="text-xs">92.10</h3>
                           </div>
                         </div>
-                        <h3 className="text-emerald-500 font-bold">
+                        <h3 className="text-emerald-500 font-bold flex gap-1 items-center whitespace-nowrap">
+                          {filterParams === "final" && (
+                            <Lock size={12} className="" />
+                          )}
                           GRADED | 01/26/2025
                         </h3>
                       </div>
@@ -425,7 +429,7 @@ export default function Entries() {
                     <TableCell className="flex flex-col text-center space-y-1">
                       <Link
                         href={{
-                          pathname: "entries/entry",
+                          pathname: "/entries/entry",
                           query: { filter: "all", id: index },
                         }}
                         draggable={false}
