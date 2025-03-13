@@ -104,7 +104,15 @@ export default function SignInPage() {
       {/* {showLoading && <Loading />} */}
 
       <div className="min-h-screen overflow-hidden grid lg:grid-cols-[_60%,_40%] items-center justify-center">
-        <div className="flex flex-col items-center  justify-end h-full ">
+        <m.div
+          initial={{ opacity: 0, x: -100 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{
+            duration: 0.6,
+            ease: "easeOut",
+          }}
+          className="flex flex-col items-center  justify-end h-full "
+        >
           <div className="relative  size-full flex flex-col">
             <div className="p-16 flex flex-col justify-end gap-4 z-10 0 h-full">
               <div className="w-full max-w-[300px]">
@@ -370,8 +378,16 @@ export default function SignInPage() {
               </div>
             </AnimatePresence>
           </div>
-        </div>
-        <div className="relative">
+        </m.div>
+        <m.div
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.6,
+            ease: "easeOut",
+          }}
+          className="relative"
+        >
           <div className="z-30 flex size-full relative items-center justify-center">
             <Formik
               initialValues={{ initialValues }}
@@ -855,7 +871,7 @@ export default function SignInPage() {
           <div className="">
             <FloatingIcons />
           </div>
-        </div>
+        </m.div>
       </div>
     </div>
   );
