@@ -10,10 +10,10 @@ export default function RootLayout({
 }>) {
   return (
     <main className="bg-slate-100">
-      <Header />
-      <FloatingIcons />
+      {/*  <Header /> */}
+
       {children}
-      <Footer />
+      {/* <Footer /> */}
     </main>
   );
 }

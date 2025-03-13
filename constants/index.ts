@@ -23,6 +23,12 @@ export const links = [
         query: null,
       },
       {
+        href: "/registrations",
+        label: "Registrations",
+        icons: Building2,
+        query: null,
+      },
+      {
         href: "/participants",
         label: "Participants",
         icons: Building2,

@@ -8,12 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import {
   Accordion,
   AccordionContent,
@@ -29,13 +24,15 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-
+import pdf from "@/public/assets/images/pdf.svg";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import {
   ChevronDown,
   ClipboardCheckIcon,
   Download,
   Eye,
+  MinusCircle,
   RotateCcw,
   Search,
   Sliders,
@@ -182,38 +179,9 @@ export default function Page() {
     <div className="min-h-screen flex w-full">
       <div className="space-y-2 h-full w-full">
         <h1 className="text-slate-600 font-bold text-2xl uppercase">
-          List of Participants
+          Registrations
         </h1>
-        <h2 className="text-blue-900 text-base py-4">
-          Theme: 11th eGOV Awards: Excellence in Governance Through Information
-          and Communications Technology Awards
-        </h2>
-        <div className="flex gap-3 pb-4">
-          <Popover>
-            <PopoverTrigger className="text-slate-900 h-fit border group text-sm  flex items-center gap-2 bg-white p-2 rounded-lg">
-              2025
-              <ChevronDown
-                size={10}
-                className="transition-transform duration-200 group-data-[state=open]:rotate-180"
-              />
-            </PopoverTrigger>
-            <PopoverContent align="start">
-              Place content for the popover here.
-            </PopoverContent>
-          </Popover>
-          <div className="relative">
-            {" "}
-            <Input
-              type="text"
-              placeholder="Search by keyword"
-              className="pl-10"
-            />{" "}
-            <Search
-              size={15}
-              className="absolute -translate-y-1/2 top-1/2 left-3 text-slate-500"
-            />
-          </div>
-        </div>
+
         <div className="text-xs text-slate-500 font-semibold">
           <Label>Filter</Label>
           <div className="flex justify-between items-end">
@@ -328,22 +296,22 @@ export default function Page() {
             <TableRow>
               {(() => {
                 const tableHeader = [
+                  "Authorized Representative",
                   "LGU",
-                  "Province",
-                  "Region",
-                  "No. of Entries",
+                  "Proof",
+                  "Actions",
                 ];
                 return tableHeader.map((th, index) => (
                   <TableHead
                     key={index}
                     className={` font-medium ${
-                      th === "LGU"
+                      th === "Authorized Representative"
                         ? ""
-                        : th == "Province"
+                        : th == "LGU"
                         ? ""
-                        : th === "Region"
-                        ? ""
-                        : th === "No. of Entries"
+                        : th === "Proof"
+                        ? "w-32"
+                        : th === "Actions"
                         ? "w-[0] text-center"
                         : ""
                     }`}
@@ -365,13 +333,7 @@ export default function Page() {
               const [quickScoreList, setQuickScoreList] = useState<string[]>(
                 []
               );
-              const toggleQuickScore = (number: number) => {
-                setQuickScoreList((prev) =>
-                  prev.includes(number.toString())
-                    ? prev.filter((item) => item !== number.toString())
-                    : [...prev, number.toString()]
-                );
-              };
+              const [status, setStatus] = useState("approved");
               const data = [
                 {
                   invoice: "INV004",
@@ -396,137 +358,69 @@ export default function Page() {
                     className="border-b-0 hover:bg-transparent"
                   >
                     <TableCell className="font-medium">
-                      <h2 className="text-slate-900 text-base line-clamp-2">
-                        Calabanga
-                      </h2>{" "}
+                      <div className="text-base">
+                        <h2 className="text-slate-900 line-clamp-1">
+                          Lorem ipsum
+                        </h2>{" "}
+                        <a href="#" className="line-clamp-1 text-blue-400 ">
+                          lorem@gmail.com
+                        </a>
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <h2 className="text-slate-500 text-base line-clamp-2">
-                        Camarines Sur
+                      <h2 className="text-slate-500 text-base line-clamp-1">
+                        Camarines Sur lorem
                       </h2>{" "}
-                    </TableCell>
-                    <TableCell>
-                      <h2 className="text-slate-500 text-base line-clamp-2">
+                      <h2 className="text-slate-500 text-base line-clamp-1">
                         Bicol (Region V)
                       </h2>{" "}
                     </TableCell>
-                    <TableCell className="text-center">
-                      <h2 className="text-slate-900 text-base line-clamp-2">
-                        4
-                      </h2>{" "}
+                    <TableCell>
+                      <div className="bg-slate-200 transition-colors hover:bg-slate-300 text-xs  text-slate-900 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap rounded-full  w-full">
+                        {" "}
+                        <Image src={pdf} alt="PDF Icon" />
+                        View PDF <Eye size={10} className=" shrink-0" />
+                      </div>
                     </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={6} className="p-0 border-0">
-                      <Accordion
-                        type="multiple"
-                        value={quickScoreList}
-                        onValueChange={setQuickScoreList}
+                    <TableCell className="flex flex-col text-center space-y-1">
+                      <Link
+                        href={{
+                          pathname: "/entries/entry",
+                          query: { filter: "all", id: index },
+                        }}
+                        draggable={false}
+                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF] px-1.5 rounded-full flex gap-2 items-center p-1"
                       >
-                        <AccordionItem
-                          value={index.toString()}
-                          className="border-0 "
+                        <Eye size={15} />
+                        View Details
+                      </Link>
+                      {status == "approved" && (
+                        <Button
+                          onClick={() => setStatus("pending")}
+                          variant={"outline"}
+                          size={"sm"}
+                          className={`${
+                            quickScoreList.includes(index.toString())
+                              ? "bg-teal-500 hover:bg-teal-500 text-slate-50 hover:text-slate-50"
+                              : "bg-[#CCFBF1] hover:bg-[#b0f6e7] text-[#115E59] hover:text-[#115E59]"
+                          }     h-fit rounded-full w-min px-1.5 p-1`}
                         >
-                          <Formik
-                            initialValues={{
-                              impact: 0,
-                              relevance: 0,
-                              sustainability: 0,
-                              innovation: 0,
-                              alignment: 0,
-                            }}
-                            validationSchema={validationSchema}
-                            onSubmit={(values, actions) => {
-                              console.log(values);
-                            }}
-                            className="flex gap-16"
-                          >
-                            {({ values, setFieldValue }) => {
-                              return (
-                                <Form>
-                                  <AccordionContent className="flex w-full justify-around items-center bg-green-100 p-6 ">
-                                    {Object.keys(values).map((item, index) => (
-                                      <div
-                                        key={index}
-                                        className="flex flex-col items-center"
-                                      >
-                                        <h3 className="text-xs font-medium text-green-900">
-                                          {item === "alignment"
-                                            ? " Alignment with Goals"
-                                            : item.charAt(0).toUpperCase() +
-                                              item.slice(1)}
-                                        </h3>
-                                        <div className="flex items-center gap-1">
-                                          <Field
-                                            type="text"
-                                            autoComplete="off"
-                                            name={item}
-                                            as={Input}
-                                            onChange={(e: any) => {
-                                              e.target.value =
-                                                e.target.value.replace(
-                                                  /\D/g,
-                                                  ""
-                                                );
-                                              if (e.target.value.length > 2) {
-                                                e.target.value =
-                                                  e.target.value.slice(0, 2);
-                                              }
-                                              if (Number(e.target.value > 50)) {
-                                                setFieldValue(item, 50);
-                                              } else {
-                                                setFieldValue(
-                                                  item,
-                                                  Number(e.target.value)
-                                                );
-                                              }
-                                            }}
-                                            className="w-11"
-                                          />
-
-                                          <h3 className="text-base font-medium">
-                                            /50
-                                          </h3>
-                                        </div>
-                                      </div>
-                                    ))}
-
-                                    <div className="text-center font-bold">
-                                      <h2 className="text-xs text-green-900">
-                                        Total
-                                      </h2>
-                                      <h3 className="text-base">
-                                        {Object.values(values).reduce(
-                                          (accumulator, currentValue) =>
-                                            accumulator + currentValue
-                                        )}
-                                        /250
-                                      </h3>
-                                    </div>
-                                    <div className="flex gap-2">
-                                      {" "}
-                                      <Button
-                                        type="submit"
-                                        onClick={() => toggleQuickScore(index)}
-                                        className="bg-emerald-500 hover:bg-emerald-400 font-semibold"
-                                      >
-                                        Save
-                                      </Button>
-                                      <Button
-                                        type="button"
-                                        onClick={() => toggleQuickScore(index)}
-                                        className="bg-white hover:bg-slate-100 text-emerald-400 hover:text-emerald-700 font-semibold"
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  </AccordionContent>
-                                </Form>
-                              );
-                            }}
-                          </Formik>
-                        </AccordionItem>
-                      </Accordion>
+                          <ClipboardCheckIcon size={15} />
+                          Approved
+                        </Button>
+                      )}
+                      {status == "pending" && (
+                        <Button
+                          onClick={() => setStatus("approved")}
+                          variant={"outline"}
+                          size={"sm"}
+                          className={`bg-orange-100 hover:bg-orange-200 text-orange-600 hover:text-orange-700
+                              h-fit rounded-full w-min px-1.5 p-1`}
+                        >
+                          <MinusCircle size={15} />
+                          For Approval
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 </React.Fragment>
