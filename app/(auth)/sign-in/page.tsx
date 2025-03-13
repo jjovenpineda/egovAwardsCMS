@@ -53,7 +53,7 @@ export default function SignInPage() {
         const { success, message, data } = res;
         if (success) {
           setItem("account_data", encrypt(JSON.stringify(data)));
-          setCookie("authToken", encrypt(data.token) ?? "");
+
           setTimeout(() => {
             setShowLoading(true);
             setTimeout(() => {
