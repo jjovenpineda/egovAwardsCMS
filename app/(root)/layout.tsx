@@ -1,5 +1,6 @@
 "use client";
 
+import { Footer } from "@/components/shared/footer";
 import SideBar from "@/components/shared/side-bar";
 import TopBar from "@/components/shared/top-bar";
 import { storage } from "@/utils/useStorage";
@@ -65,6 +66,7 @@ export default function RootLayout({
             >
               {children}
             </m.div>
+            <Footer />
           </div>
           {/*   {isInactive && (
           <div className="inactivity-dialog">

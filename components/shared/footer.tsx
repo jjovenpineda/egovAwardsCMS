@@ -10,16 +10,16 @@ import { m } from "motion/react";
 export function Footer() {
   return (
     <div className="bg-gray-800 z-10">
-      <div className="container relative mx-auto px-10 lg:px-20 py-8 lg:py-16 text-sm text-white">
-        <div className="flex max-w-full flex-col items-center justify-evenly flex-wrap gap-8 md:gap-20  md:flex-row ">
-          <div className="max-w-40 hidden 2xl:block">
+      <div className="container relative mx-auto px-10 lg:px-8 py-8 lg:py-16 text-sm text-white">
+        <div className="flex max-w-full flex-col items-center justify-evenly gap-8 md:gap-20  md:flex-row ">
+          <div className="max-w-40 hidden 2xl:block ">
             <Image
               src={republika}
               alt=""
-              className="object-contain opacity-30"
+              className="object-contain opacity-50"
             />
           </div>
-          <div className="flex max-w-full flex-col justify-evenly gap-8  xl:gap-40 md:flex-row ">
+          <div className="flex w-fit flex-col  justify-evenly gap-8  xl:gap-20 md:flex-row ">
             <div className="">
               <Image
                 src={dict}
