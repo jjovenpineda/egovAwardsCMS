@@ -433,7 +433,7 @@ export default function Entries() {
                           query: { filter: "all", id: index },
                         }}
                         draggable={false}
-                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF] px-1.5 rounded-full flex gap-2 items-center p-1"
+                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF] px-1.5 rounded-full flex gap-1 items-center p-1"
                       >
                         <Eye size={15} />
                         View Details
@@ -448,16 +448,21 @@ export default function Entries() {
                             : "bg-[#CCFBF1] hover:bg-[#b0f6e7] text-[#115E59] hover:text-[#115E59]"
                         }     h-fit rounded-full w-min px-1.5 p-1`}
                       >
-                        <ClipboardCheckIcon size={15} />
-                        Quickscore
+                        <div className="flex gap-1">
+                          <ClipboardCheckIcon size={15} />
+                          Quickscore
+                        </div>
                       </Button>
                       <Button
                         variant={"outline"}
                         size={"sm"}
                         className="bg-[#F3F4F6] hover:bg-[#e3e3e3] text-[#1F2937] h-fit p-1 px-1.5 rounded-full w-min "
                       >
-                        <Download size={15} />
-                        Download
+                        <div className="flex gap-1">
+                          {" "}
+                          <Download size={15} />
+                          Download
+                        </div>
                       </Button>
                     </TableCell>
                   </TableRow>

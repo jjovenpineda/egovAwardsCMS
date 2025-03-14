@@ -241,12 +241,6 @@ export default function Page() {
                         <Edit size={15} className="text-slate-500" />
                       </Button>
                     </ManageUserModal>{" "}
-                    <ManageUserModal action="delete">
-                      <Button variant="ghost" size={"icon"}>
-                        {" "}
-                        <Trash2 size={15} className="text-red-500" />
-                      </Button>
-                    </ManageUserModal>{" "}
                   </div>
                 </TableCell>
               </TableRow>
@@ -335,7 +329,7 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                           type="text"
                           autoComplete="off"
                           name="lastName"
-                          placeholder="Enter Name of LCE"
+                          placeholder="Enter Last Name"
                           as={Input}
                           className=" space-y-8 rounded-md bg-white "
                         />
@@ -355,7 +349,7 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                           type="text"
                           autoComplete="off"
                           name="firstName"
-                          placeholder="Enter Name of LCE"
+                          placeholder="Enter First Name"
                           as={Input}
                           className=" space-y-8 rounded-md bg-white "
                         />
@@ -375,7 +369,7 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                           type="text"
                           autoComplete="off"
                           name="email"
-                          placeholder="Enter Name of LCE"
+                          placeholder="Enter Email"
                           as={Input}
                           className=" space-y-8 rounded-md bg-white "
                         />
@@ -437,33 +431,49 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                       </Button>
                     </DialogFooter>
                   ) : (
-                    <DialogFooter className="flex justify-end gap-2">
-                      <DialogClose
-                        type="button"
-                        className="w-fit rounded-md  hover:bg-slate-100 flex justify-center t gap-2 text-sm font-semibold items-center transition-colors duration-300  outline outline-1 text-slate-900 p-2 px-4"
+                    <DialogFooter>
+                      <div
+                        className={`flex w-full justify-end ${
+                          action == "edit" && "justify-between"
+                        }`}
                       >
-                        <X size={13} className="mt-0.5" /> Close
-                      </DialogClose>
-                      <Button
-                        type="submit"
-                        onClick={() => {
-                          setOpen(false);
-                          toast({
-                            variant: "success",
-                            title: `User ${
-                              action == "edit" ? "updated" : "created"
-                            }`,
-                            description: `The user has been successfully ${
-                              action == "edit" ? "updated" : "created"
-                            }.`,
-                            duration: 2500,
-                          });
-                        }}
-                        className={`bg-[#1F2937] flex justify-center w-fit gap-2 text-sm font-semibold items-center transition-colors duration-300  hover:bg-slate-700 text-white p-2.5 px-4 rounded-md`}
-                      >
-                        <Save size={10} /> {action == "edit" && "Update"}
-                        {action == "add" && "Save"}
-                      </Button>
+                        {action == "edit" && (
+                          <Button
+                            variant={"ghost"}
+                            className="outline outline-1 outline-red-500 text-red-500 hover:bg-slate-100 hover:text-red-500"
+                          >
+                            Deactivate Account
+                          </Button>
+                        )}
+                        <div className="flex gap-4">
+                          <DialogClose
+                            type="button"
+                            className="w-fit rounded-md  hover:bg-slate-100 flex justify-center t gap-2 text-sm font-semibold items-center transition-colors duration-300  outline outline-1 text-slate-900 p-2 px-4"
+                          >
+                            <X size={13} className="mt-0.5" /> Close
+                          </DialogClose>
+                          <Button
+                            type="submit"
+                            onClick={() => {
+                              setOpen(false);
+                              toast({
+                                variant: "success",
+                                title: `User ${
+                                  action == "edit" ? "updated" : "created"
+                                }`,
+                                description: `The user has been successfully ${
+                                  action == "edit" ? "updated" : "created"
+                                }.`,
+                                duration: 2500,
+                              });
+                            }}
+                            className={`bg-[#1F2937] flex justify-center w-fit gap-2 text-sm font-semibold items-center transition-colors duration-300  hover:bg-slate-700 text-white p-2.5 px-4 rounded-md`}
+                          >
+                            <Save size={10} /> {action == "edit" && "Update"}
+                            {action == "add" && "Save"}
+                          </Button>
+                        </div>
+                      </div>
                     </DialogFooter>
                   )}{" "}
                 </DialogContent>

@@ -397,7 +397,7 @@ export default function Page() {
                     <TableCell className="flex flex-col text-center space-y-1">
                       <button
                         onClick={() => setPage1Modal(true)}
-                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF]  rounded-full flex gap-2 items-center p-1"
+                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF]  rounded-full flex gap-1 items-center p-1"
                       >
                         <Eye size={15} />
                         View Details
@@ -435,8 +435,10 @@ export default function Page() {
                               : "bg-[#CCFBF1] hover:bg-[#b0f6e7] text-[#115E59] hover:text-[#115E59]"
                           }     h-fit rounded-full w-min px-1.5 p-1`}
                         >
-                          <ClipboardCheckIcon size={15} />
-                          Approved
+                          <div className="flex gap-1">
+                            <ClipboardCheckIcon size={15} />
+                            Approved
+                          </div>
                         </Button>
                       )}
                       {status == "pending" && (
@@ -447,8 +449,11 @@ export default function Page() {
                           className={`bg-orange-100 hover:bg-orange-200 text-orange-600 hover:text-orange-700
                               h-fit rounded-full w-min px-1.5 p-1`}
                         >
-                          <MinusCircle size={15} />
-                          For Approval
+                          <div className="flex gap-1">
+                            {" "}
+                            <MinusCircle size={15} />
+                            For Approval
+                          </div>
                         </Button>
                       )}
                     </TableCell>

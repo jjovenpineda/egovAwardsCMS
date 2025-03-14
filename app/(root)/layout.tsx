@@ -62,7 +62,7 @@ export default function RootLayout({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               onAnimationComplete={() => setHasAnimated(true)}
-              className="px-16 py-8 "
+              className="px-16 py-8 min-h-screen"
             >
               {children}
             </m.div>

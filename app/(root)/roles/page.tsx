@@ -255,7 +255,7 @@ const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
                           type="text"
                           autoComplete="off"
                           name="name"
-                          placeholder="Enter Name of LCE"
+                          placeholder="Enter Role Name"
                           as={Input}
                           className=" space-y-8 rounded-md lg:w-1/2 bg-white "
                         />
