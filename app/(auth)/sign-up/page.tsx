@@ -386,7 +386,7 @@ export default function SignInPage() {
             duration: 0.6,
             ease: "easeOut",
           }}
-          className="relative"
+          className="relative size-full"
         >
           <div className="z-30 flex size-full relative items-center justify-center">
             <Formik
@@ -844,6 +844,7 @@ export default function SignInPage() {
                                 </CardContent>
                                 <div className="flex gap-4 justify-center">
                                   <Button
+                                    onClick={() => router.push("/sign-in")}
                                     className={`bg-[#1F2937] flex justify-center w-full gap-2 text-sm font-semibold items-center transition-colors duration-300  hover:bg-slate-700 text-white p-2.5 px-6 rounded-md`}
                                   >
                                     Sign Up

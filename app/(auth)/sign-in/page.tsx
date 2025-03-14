@@ -374,7 +374,7 @@ export default function SignInPage() {
             </AnimatePresence>
           </div>
         </m.div>
-        <div className="relative">
+        <div className="relative size-full">
           <m.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
@@ -818,9 +818,8 @@ export default function SignInPage() {
               }}
             </Formik>
           </m.div>
-          <div className="">
-            <FloatingIcons />
-          </div>
+          <FloatingIcons />
+          <div className=""></div>
         </div>
       </div>
     </div>
