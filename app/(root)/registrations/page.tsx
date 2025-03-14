@@ -8,7 +8,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Accordion,
   AccordionContent,
@@ -53,11 +62,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ErrorMessage, Field, Form, Formik } from "formik";
+import ModalWrapper from "@/components/shared/modal-wrapper";
+import LGUForms from "@/components/lgu-forms";
+import { PSGC } from "@/constants";
 export default function Page() {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get("filter");
   const [selected, setSelected] = useState<string[]>([""]);
-
+  const [page1Modal, setPage1Modal] = useState(false);
   const filterChecklist = [
     {
       title: "FILTER BY STATUS",
@@ -383,17 +395,35 @@ export default function Page() {
                       </div>
                     </TableCell>
                     <TableCell className="flex flex-col text-center space-y-1">
-                      <Link
-                        href={{
-                          pathname: "/entries/entry",
-                          query: { filter: "all", id: index },
-                        }}
-                        draggable={false}
-                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF] px-1.5 rounded-full flex gap-2 items-center p-1"
+                      <button
+                        onClick={() => setPage1Modal(true)}
+                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF]  rounded-full flex gap-2 items-center p-1"
                       >
                         <Eye size={15} />
                         View Details
-                      </Link>
+                      </button>
+                      <Dialog open={page1Modal} onOpenChange={setPage1Modal}>
+                        <DialogTrigger asChild></DialogTrigger>
+                        <DialogContent className="w-full max-w-[887px]">
+                          <DialogHeader>
+                            <DialogTitle>
+                              {" "}
+                              <h2 className="font-bold text-lg uppercase text-blue-900 mb-6">
+                                Details
+                              </h2>
+                            </DialogTitle>
+                            <DialogDescription></DialogDescription>
+                          </DialogHeader>
+                          <Details />
+                          <div className="flex items-end justify-end gap-4">
+                            <DialogClose>
+                              <Button variant={"outline"} type="submit">
+                                <X size={15} /> Close
+                              </Button>
+                            </DialogClose>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                       {status == "approved" && (
                         <Button
                           onClick={() => setStatus("pending")}
@@ -455,3 +485,132 @@ export default function Page() {
     </div>
   );
 }
+
+const Details = () => {
+  const aboutTheLguLabels = [
+    { label: "Contact Person", value: "contactPerson" },
+    { label: "LGU Name", value: "lgu_name" },
+    { label: "LGU Abbreviation", value: "lgu_abbr" },
+    { label: "Province", value: "lgu_province" },
+    { label: "Region", value: "lgu_region" },
+    { label: "Name of LCE", value: "lgu_lceName" },
+    { label: "Name of Office in LGU", value: "lgu_officeName" },
+    { label: "Contact Person", value: "lgu_contactPerson" },
+    { label: "Email", value: "lgu_contactPersonEmail" },
+    { label: "Mobile Number", value: "lgu_contactPersonMobileNo" },
+    { label: "Office Number", value: "lgu_contactPersonOfficeNo" },
+    { label: "Facebook Page", value: "lgu_facebook" },
+    { label: "Website", value: "lgu_website" },
+
+    {
+      label:
+        "Number of times in joining eGOV, Digital Cities Awards, Digital Governance Awards from 2012 to 2022",
+      value: "joinCount",
+    },
+  ];
+  const values = {
+    contactPerson: "juandelacruz@calabanga.com",
+    lgu_name: "012801000", // Example LGU ID (should match PSGC IDs)
+    lgu_abbr: "LGU Example",
+    lgu_province: "Ilocos Norte",
+    lgu_region: "Region I - Ilocos Region",
+    lgu_lceName: "Juan Dela Cruz",
+    lgu_officeName: "Municipal Information Office",
+    lgu_contactPerson: "Maria Santos",
+    lgu_contactPersonEmail: "info@lgu-example.gov.ph",
+    lgu_contactPersonMobileNo: "09171234567",
+    lgu_contactPersonOfficeNo: "(077) 123-4567",
+    lgu_facebook: "https://www.facebook.com/LGUExample",
+    lgu_website: "https://www.lgu-example.gov.ph",
+    joinCount: 3, // Number of times LGU joined eGOV awards
+
+    // Additional project-related fields (not in aboutTheLguLabels but kept for reference)
+    projectName: "Smart City Initiative",
+    projectCategory: "Digital Innovation",
+    projectPeriod: "January 2022 - December 2023",
+    projectURL: "https://www.smartcity-example.gov.ph",
+
+    // Example documents
+    documents: [
+      {
+        title: "Invoice #001",
+        date: "2025-03-05",
+        recipient: "John Doe",
+        items: [
+          {
+            description: "Web Development Services",
+            quantity: 1,
+            price: 500.0,
+          },
+          {
+            description: "Hosting (1 Year)",
+            quantity: 1,
+            price: 100.0,
+          },
+        ],
+        total: 600.0,
+      },
+      {
+        title: "Report - Q1 2025",
+        date: "2025-03-05",
+        author: "Jane Smith",
+        summary:
+          "This report summarizes the financial and operational performance for Q1 2025.",
+      },
+    ],
+  };
+  return (
+    <>
+      <section>
+        <div className=" space-y-2 pt-6 lg:pt-0">
+          <div className="flex justify-between items-center">
+            {/*    <h2 className="font-bold text-lg text-blue-900">Details</h2> */}
+          </div>
+        </div>
+        <div className="grid text-base w-full grid-cols-2 md:grid-cols-[_40%,_60%] md:gap-2">
+          {aboutTheLguLabels.map((item, index) => {
+            /*  const region = PSGC.regions.find((region) =>
+              values.lgu.startsWith(region.id)
+            );
+            const province = PSGC.regions
+              .find((region) => values.lgu.startsWith(region.id))
+              ?.provinces.find((province) =>
+                values.lgu.startsWith(province.id)
+              );
+            const lgu = PSGC.regions
+              .find((region) => values.lgu.startsWith(region.id))
+              ?.provinces.find((province) => values.lgu.startsWith(province.id))
+              ?.lgus.find((lgu) => lgu.id === values.lgu); */
+
+            return (
+              <React.Fragment key={index}>
+                {item.value === "contactPerson" ? (
+                  <div className="flex flex-col col-span-2 mb-2">
+                    {" "}
+                    <div className="flex justify-between">{item.label}</div>
+                    <div>
+                      <div className=" font-medium text-slate-500">
+                        {values[item.value]}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex justify-between">
+                      {item.label} <span className="mr-4">:</span>
+                    </div>
+                    <div>
+                      <div className=" font-medium text-slate-500">
+                        {values[item.value]}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </section>
+    </>
+  );
+};
