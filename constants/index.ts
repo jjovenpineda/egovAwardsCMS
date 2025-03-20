@@ -98,6 +98,36 @@ export const links = [
     ],
   },
 ];
+export const permissions = [
+  {
+    name: "Entries",
+    options: [
+      "Edit",
+      "Score",
+      "View",
+      "Download",
+      "Email Notice",
+      "View Ranking Summary (Dashboard)",
+      "Download Ranking Summary (Dashboard)",
+      "View List of Participants",
+      "Download List of Participants",
+    ],
+  },
+
+  {
+    name: "Users",
+    options: ["Edit", "Score", "View", "Download"],
+  },
+  {
+    name: "Roles",
+    options: ["Edit", "Score", "View", "Download"],
+  },
+  {
+    name: "Content",
+    options: ["Edit", "Score", "View", "Download"],
+  },
+];
+
 export const PSGC = {
   regions: [
     {

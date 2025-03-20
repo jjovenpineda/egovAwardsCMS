@@ -60,7 +60,7 @@ export default function FloatingIcons() {
   }, []);
 
   return (
-    <div className="absolute  inset-0 pointer-events-none">
+    <div className="absolute inset-0 pointer-events-none">
       <div className="">
         <link
           rel="stylesheet"

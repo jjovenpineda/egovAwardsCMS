@@ -29,7 +29,7 @@ export const tokenValue = () => {
   if (account) {
     const _account = decrypt(account);
     if (_account) {
-      return _account.token;
+      return _account.accessToken;
     } else {
       return null;
     }

@@ -1,62 +1,29 @@
 "use client";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 
-import {
-  ChevronDown,
-  ClipboardCheckIcon,
-  Download,
-  Edit,
-  Eye,
-  Plus,
-  RotateCcw,
-  Save,
-  Search,
-  Sliders,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import * as Yup from "yup";
+
+import { ChevronDown, Edit, Plus, Save, Search, Trash2, X } from "lucide-react";
 import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import React, { ReactNode, useState } from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import React, { ReactNode, useEffect, useState } from "react";
+
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import {
   Pagination,
   PaginationContent,
@@ -69,16 +36,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import CustomBadge from "@/components/shared/custom-badge";
 import { toast } from "@/hooks/use-toast";
+import { apiGet } from "@/utils/api";
+import { permissions } from "@/constants";
 const data = [
   {
     role: "Super Admin",
@@ -90,6 +58,20 @@ const data = [
   },
 ];
 export default function Page() {
+  const [rolesList, setRolesList] = useState<any>([]);
+  const getRolesList = async () => {
+    try {
+      const res = await apiGet("/api/auth/roles/list");
+      const { data } = res;
+      if (!data) return;
+      setRolesList(data);
+    } catch (e) {
+      console.error("Error fetching LGU list:", e);
+    }
+  };
+  useEffect(() => {
+    getRolesList();
+  }, []);
   return (
     <div className="max-w-[90%] flex flex-col gap-4">
       {" "}
@@ -143,7 +125,7 @@ export default function Page() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((item, index) => (
+          {rolesList.map((item: any, index: any) => (
             <React.Fragment key={index}>
               <TableRow key={index} className="border-b-0 hover:bg-transparent">
                 <TableCell className="font-medium text-base text-slate-900">
@@ -200,18 +182,82 @@ interface IManageRoleModal {
   action: string;
 }
 const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
+  const validationSchema = Yup.object().shape({
+    lastName: Yup.string().required("This field is required"),
+    firstName: Yup.string().required("This field is required"),
+    email: Yup.string()
+      .email("Invalid email format")
+      .required("This field is required"),
+    role: Yup.string().required("This field is required"),
+    judgeChoice: Yup.array()
+      .of(Yup.string()) // No `required()` here, to allow an empty array initially
+      .test(
+        "judge-choice-required",
+        "This field is required",
+        function (value) {
+          const { role } = this.parent;
+          if (role === "judge") {
+            return value && value.length > 0;
+          }
+          return true;
+        }
+      ),
+  });
+  const handleSubmit = async (values: any, resetForm: any) => {
+    console.log("values :", values);
+    toast({
+      variant: "success",
+      title: "User Deleted",
+      description: "The user has been successfully deleted.",
+      duration: 2500,
+    });
+    resetForm();
+    /*  const filteredValues = {
+        ...values,
+        supportingDoc: values.supportingDoc.filter(
+          (key: any) => typeof key === "string"
+        ),
+      };
+  
+      console.log("filteredValues :", filteredValues); */
+
+    /*  await apiPost("/api/entry/create", filteredValues)
+        .then((res) => {
+          const { success, message, data } = res;
+          if (success) {
+          }
+          toast({
+            title: " Success!",
+            description: message,
+            duration: 2000,
+          });
+        })
+        .catch((e) => {
+          console.log(e);
+  
+          toast({
+            title: " failed",
+  
+            description: "Invalid email or password",
+            duration: 2000,
+          });
+        }); */
+  };
   return (
     <Formik
       initialValues={{
         name: "",
-        Roles: [],
+        entries: [] as string[],
+        users: [] as string[],
+        roles: [] as string[],
+        content: [] as string[],
       }}
       validationSchema={/* validationSchema */ ""}
       onSubmit={(values) => {
         console.log(values);
       }}
     >
-      {({ values, setFieldValue, resetForm }) => {
+      {({ values, setFieldValue, resetForm, isValid, dirty, errors }) => {
         const [open, setOpen] = useState(false);
 
         return (
@@ -264,55 +310,86 @@ const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
                         <Label className="font-semibold text-sm text-[#1F2937]">
                           Permissions
                         </Label>
-                        <Accordion type="single" collapsible className="w-full">
-                          <AccordionItem value="item-1" className="border-0">
-                            <AccordionTrigger chevron className="group">
-                              <div className="flex items-center gap-2 ">
-                                <ChevronDown
-                                  size={15}
-                                  className="transition-transform duration-200 group-data-[state=open]:rotate-180 "
-                                />
-                                <span className=" text-blue-600 font-semibold text-base">
-                                  Entries
-                                </span>
-                                <CustomBadge
-                                  color={"blue"}
-                                  message="4/5"
-                                  className="rounded-full text-[10px]"
-                                />
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              {(() => {
-                                const roles = [
-                                  "Edit",
-                                  "Score",
-                                  "View",
-                                  "Download",
-                                ];
-
-                                return (
-                                  <div>
-                                    {roles.map((role, index) => (
-                                      <div
-                                        key={index}
-                                        className="flex items-center gap-2"
-                                      >
-                                        <Checkbox id={role.toLowerCase()} />
-                                        <label
-                                          htmlFor={role.toLowerCase()}
-                                          className="font-semibold text-base max-w-[200px] cursor-pointer"
+                        {permissions.map((role: any, index) => (
+                          <FieldArray
+                            name={role.name}
+                            render={(arrayHelpers) => (
+                              <Accordion
+                                type="single"
+                                collapsible
+                                className="w-full"
+                                key={index}
+                              >
+                                <AccordionItem
+                                  value="item-1"
+                                  className="border-0"
+                                >
+                                  <AccordionTrigger chevron className="group">
+                                    <div className="flex items-center gap-2 ">
+                                      <ChevronDown
+                                        size={15}
+                                        className="transition-transform duration-200 group-data-[state=open]:rotate-180 "
+                                      />
+                                      <span className=" text-blue-600 font-semibold text-base">
+                                        {role.name}
+                                      </span>
+                                      <CustomBadge
+                                        color={"blue"}
+                                        message={`${role.options.length} / ${role.options.length}`}
+                                        className="rounded-full text-[10px]"
+                                      />
+                                    </div>
+                                  </AccordionTrigger>
+                                  <AccordionContent>
+                                    {role.options.map(
+                                      (option: any, index: any) => (
+                                        <div
+                                          key={index}
+                                          className="flex items-center gap-2"
                                         >
-                                          {role}
-                                        </label>
-                                      </div>
-                                    ))}
-                                  </div>
-                                );
-                              })()}{" "}
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
+                                          <Field
+                                            type="checkbox"
+                                            name={role.name}
+                                            id={option.toLowerCase()}
+                                            value={option}
+                                          />
+                                          {/*  <Field
+                                            type="checkbox"
+                                            name={role.name}
+                                            id={option.toLowerCase()}
+                                            value={option}
+                                            checked={(
+                                              values as Record<string, string[]>
+                                            )[
+                                              role.name.toLowerCase()
+                                            ]?.includes(option)}
+                                            onChange={(e: any) => {
+                                              if (e.target.checked) {
+                                                arrayHelpers.push(option);
+                                              } else {
+                                                const idx =
+                                                  values[
+                                                    role.name.toLowerCase()
+                                                  ].indexOf(option);
+                                                arrayHelpers.remove(idx);
+                                              }
+                                            }}
+                                          /> */}
+                                          <label
+                                            htmlFor={option.toLowerCase()}
+                                            className="font-semibold text-base  cursor-pointer"
+                                          >
+                                            {option}
+                                          </label>
+                                        </div>
+                                      )
+                                    )}
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
+                            )}
+                          />
+                        ))}
                       </div>
                     </div>
                   )}
@@ -341,6 +418,9 @@ const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
                   ) : (
                     <DialogFooter className="flex justify-end gap-2">
                       <DialogClose
+                        onClick={() => {
+                          resetForm();
+                        }}
                         type="button"
                         className="w-fit rounded-md  hover:bg-slate-100 flex justify-center t gap-2 text-sm font-semibold items-center transition-colors duration-300  outline outline-1 text-slate-900 p-2 px-4"
                       >
@@ -349,8 +429,10 @@ const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
                       <Button
                         type="submit"
                         onClick={() => {
+                          handleSubmit(values, resetForm);
+
                           setOpen(false);
-                          toast({
+                          /*  toast({
                             variant: "success",
                             title: `Role ${
                               action == "edit" ? "updated" : "created"
@@ -359,7 +441,7 @@ const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
                               action == "edit" ? "updated" : "created"
                             }.`,
                             duration: 2500,
-                          });
+                          }); */
                         }}
                         className={`bg-[#1F2937] flex justify-center w-fit gap-2 text-sm font-semibold items-center transition-colors duration-300  hover:bg-slate-700 text-white p-2.5 px-4 rounded-md`}
                       >
