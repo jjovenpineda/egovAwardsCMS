@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import {
   Edit,
+  Loader2,
   Plus,
   RotateCcw,
   Save,
@@ -58,31 +59,13 @@ import { Label } from "@/components/ui/label";
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import CustomBadge from "@/components/shared/custom-badge";
 import { toast } from "@/hooks/use-toast";
-import { apiGet, apiPost } from "@/utils/api";
+import { apiGet, apiPost, apiPut } from "@/utils/api";
+import { get } from "http";
+import { Switch } from "@/components/ui/switch";
 
-/* const data = [
-  {
-    name: "John Doe",
-    email: "johndoe@example.com",
-    role: ["Super Admin", "Secretariat"],
-    action: "Edit",
-  },
-  {
-    name: "Jane Smith",
-    email: "janesmith@example.com",
-    role: ["Secretariat"],
-    action: "Edit",
-  },
-  {
-    name: "Michael Johnson",
-    email: "michaelj@example.com",
-    role: ["Secretariat", "Super Admin"],
-    action: "Edit",
-  },
-]; */
 export default function Page() {
   const [userlist, setUserList] = useState<any>([]);
-  const getRolesList = async () => {
+  const getUserList = async () => {
     try {
       const res = await apiGet("/api/auth/users/list");
       const { data } = res;
@@ -93,8 +76,11 @@ export default function Page() {
     }
   };
   useEffect(() => {
-    getRolesList();
+    getUserList();
   }, []);
+  useEffect(() => {
+    console.log("userlist :", userlist);
+  }, [userlist]);
   return (
     <div className="max-w-[90%] flex flex-col gap-4">
       {" "}
@@ -177,7 +163,11 @@ export default function Page() {
             </div>
           </div>
         </div>
-        <ManageUserModal action="add">
+        <ManageUserModal
+          action="add"
+          data={userlist}
+          refresh={() => getUserList()}
+        >
           <Button variant={"primary"} size={"default"}>
             <Plus size={15} />
             Add User
@@ -188,7 +178,7 @@ export default function Page() {
         <TableHeader>
           <TableRow>
             {(() => {
-              const tableHeader = ["Name", "Email", "Role", "Action"];
+              const tableHeader = ["Name", "Email", "Role", "Status", "Action"];
               return tableHeader.map((th, index) => (
                 <TableHead
                   key={index}
@@ -199,6 +189,8 @@ export default function Page() {
                       ? "w-[230px]"
                       : th === "Role"
                       ? "w-[500px]"
+                      : th === "Status"
+                      ? "w-[120px] text-center"
                       : th === "Action"
                       ? "w-[120px] text-center"
                       : ""
@@ -211,30 +203,56 @@ export default function Page() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {userlist.map((item: any, index: any) => (
+          {userlist?.users?.map((item: any, index: any) => (
             <React.Fragment key={index}>
-              <TableRow key={index} className="border-b-0 hover:bg-transparent">
+              <TableRow
+                key={index}
+                className="border-b-0  hover:bg-transparent"
+              >
                 <TableCell className="font-medium text-base text-slate-900">
-                  {item.name}
+                  {item.firstname} {item.lastname}
                 </TableCell>
-                <TableCell className="text-blue-500 text-base font-normal">
+                <TableCell className="text-blue-500 text-base  font-normal">
                   {item.email}
                 </TableCell>
-                <TableCell className="flex gap-2">
-                  {item.role.map((role: any, index: any) => (
-                    <div key={index}>
-                      <CustomBadge
-                        color="gray"
-                        key={index}
-                        message={role}
-                        className="text-[10px] rounded-full py-0 font-medium"
-                      />
-                    </div>
-                  ))}
+
+                <TableCell className="">
+                  <div className="flex items-center gap-2">
+                    {userlist?.roleList
+                      ?.filter((role: any) => role._id === item.role)
+                      ?.map((item: any, index: any) => (
+                        <div key={index}>
+                          <CustomBadge
+                            color="gray"
+                            key={index}
+                            message={item.name}
+                            className="text-[10px] rounded-full py-0 font-medium"
+                          />
+                        </div>
+                      ))}
+                  </div>
+                </TableCell>
+                <TableCell className="text-blue-500 text-base  font-normal">
+                  <div className="flex justify-center">
+                    <Switch
+                      color="green"
+                      className=""
+                      checked={item.isActive}
+                      /*                       onCheckedChange={field.onChange}
+                       */
+                    />
+                  </div>
                 </TableCell>
                 <TableCell className="">
                   <div className="flex justify-center gap-0.5 mx-auto">
-                    <ManageUserModal action="edit">
+                    <ManageUserModal
+                      action="edit"
+                      data={userlist}
+                      selectedUserInfo={userlist.users.find(
+                        (user: any) => user._id === item._id
+                      )}
+                      refresh={() => getUserList()}
+                    >
                       <Button variant="ghost" size={"icon"}>
                         {" "}
                         <Edit size={15} className="text-slate-500" />
@@ -269,17 +287,31 @@ export default function Page() {
 interface IManageUserModal {
   children: ReactNode;
   action: string;
+  data: any;
+  refresh: () => void;
+  selectedUserInfo?: any;
 }
-const ManageUserModal = ({ children, action }: IManageUserModal) => {
+const ManageUserModal = ({
+  children,
+  action,
+  data,
+  refresh,
+  selectedUserInfo,
+}: IManageUserModal) => {
+  const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    console.log("selectedUserInfo :", selectedUserInfo);
+  }, [selectedUserInfo]);
   const validationSchema = Yup.object().shape({
-    lastName: Yup.string().required("This field is required"),
-    firstName: Yup.string().required("This field is required"),
+    lastname: Yup.string().required("This field is required"),
+    firstname: Yup.string().required("This field is required"),
     email: Yup.string()
       .email("Invalid email format")
       .required("This field is required"),
     role: Yup.string().required("This field is required"),
     judgeCategory: Yup.array()
-      .of(Yup.string()) // No `required()` here, to allow an empty array initially
+      .of(Yup.string())
       .test(
         "judge-choice-required",
         "This field is required",
@@ -293,55 +325,78 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
       ),
   });
   const handleSubmit = async (values: any, resetForm: any) => {
-    console.log("values :", values);
-    /* toast({
-      variant: "success",
-      title: "User Deleted",
-      description: "The user has been successfully deleted.",
-      duration: 2500,
-    }); */
+    setIsLoading(true);
 
-    resetForm();
-    /*  const filteredValues = {
-      ...values,
-      supportingDoc: values.supportingDoc.filter(
-        (key: any) => typeof key === "string"
-      ),
-    };
-
-    console.log("filteredValues :", filteredValues); */
-
-    /*  await apiPost("api/auth/create", filteredValues)
-      .then((res) => {
-        const { success, message, data } = res;
+    try {
+      if (action === "add") {
+        const res = await apiPost("/api/auth/create", values);
+        const { success, message } = res;
         if (success) {
+          resetForm();
+          setOpen(false);
+          refresh();
+          toast({
+            variant: "success",
+            title: "User Created",
+            description: "The user has been successfully created.",
+            duration: 2500,
+          });
         }
-        toast({
-          title: " Success!",
-          description: message,
-          duration: 2000,
-        });
-      })
-      .catch((e) => {
-        console.log(e);
-
-        toast({
-          title: " failed",
-
-          description: "Invalid email or password",
-          duration: 2000,
-        });
-      }); */
+        if (message.includes("duplicate")) {
+          toast({
+            variant: "destructive",
+            title: "Duplicate Email",
+            description: "A user with this email already exists.",
+            duration: 2500,
+          });
+        }
+      } else if (action === "edit") {
+        const res = await apiPut(
+          `/api/role/add/permissions/${selectedUserInfo._id}`,
+          values
+        );
+        const { success, message } = res;
+        if (success) {
+          resetForm();
+          setOpen(false);
+          refresh();
+          toast({
+            variant: "success",
+            title: "User Updated",
+            description: "The user has been successfully updated.",
+            duration: 2500,
+          });
+        }
+        if (message.includes("duplicate")) {
+          toast({
+            variant: "destructive",
+            title: "Duplicate Email",
+            description: "A user with this email already exists.",
+            duration: 2500,
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Error:", e);
+      toast({
+        title: "Something went wrong",
+        description: "Please try again later.",
+        variant: "destructive",
+        duration: 2000,
+      });
+    }
+    setIsLoading(false);
   };
 
   return (
     <Formik
+      enableReinitialize
       initialValues={{
-        lastName: "",
-        firstName: "",
-        judgeCategory: [] as string[],
-        email: "",
-        role: "",
+        lastname: selectedUserInfo?.lastname || "",
+        firstname: selectedUserInfo?.firstname || "",
+        judgeCategory: selectedUserInfo?.judgeCategory || ([] as string[]),
+        email: selectedUserInfo?.email || "",
+        role: selectedUserInfo?.role || "",
       }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -356,6 +411,9 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                   {children}
                 </DialogTrigger>
                 <DialogContent
+                  onInteractOutside={(e) => {
+                    e.preventDefault();
+                  }}
                   className={`${
                     action == "delete" ? "sm:max-w-sm" : "sm:max-w-3xl"
                   }  px-10 py-6`}
@@ -380,7 +438,7 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                             Last Name
                           </Label>
                           <ErrorMessage
-                            name="lastName"
+                            name="lastname"
                             component="div"
                             className=" text-xs text-red-500 font-semibold"
                           />
@@ -388,7 +446,7 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                         <Field
                           type="text"
                           autoComplete="off"
-                          name="lastName"
+                          name="lastname"
                           placeholder="Enter Last Name"
                           as={Input}
                           className=" space-y-8 rounded-md bg-white "
@@ -400,7 +458,7 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                             First Name
                           </Label>
                           <ErrorMessage
-                            name="firstName"
+                            name="firstname"
                             component="div"
                             className=" text-xs text-red-500 font-semibold"
                           />
@@ -408,7 +466,7 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                         <Field
                           type="text"
                           autoComplete="off"
-                          name="firstName"
+                          name="firstname"
                           placeholder="Enter First Name"
                           as={Input}
                           className=" space-y-8 rounded-md bg-white "
@@ -445,33 +503,27 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                             className=" text-xs text-red-500 font-semibold"
                           />
                         </div>
+
                         <Select
                           onValueChange={(e) => {
                             setFieldValue("role", e);
                           }}
-                          defaultValue={values.role}
+                          defaultValue={selectedUserInfo?.role}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select Role" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
-                              {(() => {
-                                const items = [
-                                  { name: "superAdmin", label: "Super Admin" },
-                                  { name: "secretariat", label: "Secretariat" },
-                                  { name: "judge", label: "Judge" },
-                                ];
-                                return (
-                                  <>
-                                    {items.map((item, index) => (
-                                      <SelectItem key={index} value={item.name}>
-                                        {item.label}
-                                      </SelectItem>
-                                    ))}
-                                  </>
-                                );
-                              })()}
+                              <>
+                                {data?.roleList?.map(
+                                  (item: any, index: any) => (
+                                    <SelectItem key={index} value={item._id}>
+                                      {item.name}
+                                    </SelectItem>
+                                  )
+                                )}
+                              </>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
@@ -481,7 +533,7 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                         render={(arrayHelpers) => (
                           <>
                             {" "}
-                            {values.role == "judge" && (
+                            {values.role == "67dbb942509373eb845a0e1d" && (
                               <div className="">
                                 <div className="flex gap-1 items-center">
                                   <h2 className="text-[#1F2937] font-semibold text-sm">
@@ -599,7 +651,6 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                             disabled={!isValid || !dirty}
                             onClick={() => {
                               handleSubmit(values, resetForm);
-                              setOpen(false);
 
                               /*  toast({
                                 variant: "success",
@@ -614,8 +665,18 @@ const ManageUserModal = ({ children, action }: IManageUserModal) => {
                             }}
                             className={`bg-[#1F2937] flex justify-center w-fit gap-2 text-sm font-semibold items-center transition-colors duration-300  hover:bg-slate-700 text-white p-2.5 px-4 rounded-md`}
                           >
-                            <Save size={10} /> {action == "edit" && "Update"}
-                            {action == "add" && "Save"}
+                            {isLoading ? (
+                              <Loader2
+                                size={18}
+                                className=" animate-spin mx-6"
+                              />
+                            ) : (
+                              <>
+                                <Save size={10} />{" "}
+                                {action == "edit" && "Update"}
+                                {action == "add" && "Save"}
+                              </>
+                            )}
                           </Button>
                         </div>
                       </div>

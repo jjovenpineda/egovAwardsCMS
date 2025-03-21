@@ -4,7 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import * as Yup from "yup";
 
-import { ChevronDown, Edit, Plus, Save, Search, Trash2, X } from "lucide-react";
+import {
+  ChevronDown,
+  Edit,
+  Loader2,
+  Plus,
+  Save,
+  Trash2,
+  X,
+} from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -34,7 +42,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
   Accordion,
@@ -45,8 +52,8 @@ import {
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import CustomBadge from "@/components/shared/custom-badge";
 import { toast } from "@/hooks/use-toast";
-import { apiGet } from "@/utils/api";
-import { permissions } from "@/constants";
+import { apiGet, apiPost, apiPut } from "@/utils/api";
+import { ScrollArea } from "@/components/ui/scroll-area";
 const data = [
   {
     role: "Super Admin",
@@ -61,7 +68,7 @@ export default function Page() {
   const [rolesList, setRolesList] = useState<any>([]);
   const getRolesList = async () => {
     try {
-      const res = await apiGet("/api/auth/roles/list");
+      const res = await apiGet("/api/role/list");
       const { data } = res;
       if (!data) return;
       setRolesList(data);
@@ -72,33 +79,24 @@ export default function Page() {
   useEffect(() => {
     getRolesList();
   }, []);
+
   return (
     <div className="max-w-[90%] flex flex-col gap-4">
       {" "}
       <h1 className="text-slate-600 font-bold text-2xl uppercase mb-4">
         Roles
       </h1>
-      <div className="flex justify-between items-end">
-        <div className="flex w-full items-end gap-4 flex-wrap lg:flex-nowrap">
-          <div className="relative  w-full max-w-[343px]  ">
-            {" "}
-            <Input
-              type="text"
-              placeholder="Search User"
-              className="pl-10 h-[46px]   rounded-lg"
-            />{" "}
-            <Search
-              size={15}
-              className="absolute -translate-y-1/2 top-1/2 left-3 text-slate-500"
-            />
-          </div>
-        </div>
-        <ManageRoleModal action="add">
+      <div className="flex justify-end items-end">
+        <ManageRoleModal
+          action="add"
+          data={rolesList.permissions}
+          refresh={() => getRolesList()}
+        >
           <Button variant={"primary"} size={"default"}>
             <Plus size={15} />
             Add Role
           </Button>
-        </ManageRoleModal>{" "}
+        </ManageRoleModal>
       </div>
       <Table>
         <TableHeader>
@@ -125,27 +123,47 @@ export default function Page() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rolesList.map((item: any, index: any) => (
+          {rolesList?.roles?.map((item: any, index: any) => (
             <React.Fragment key={index}>
               <TableRow key={index} className="border-b-0 hover:bg-transparent">
                 <TableCell className="font-medium text-base text-slate-900">
-                  {item.role}
+                  {item.name}
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-center">
-                    <Switch color="green" className="" />
+                    <Switch
+                      color="green"
+                      className=""
+                      checked={item.isActive}
+                      /*                       onCheckedChange={field.onChange}
+                       */
+                    />
                   </div>
                 </TableCell>
 
                 <TableCell className="">
                   <div className="flex justify-center gap-0.5 mx-auto">
-                    <ManageRoleModal action="edit">
+                    <ManageRoleModal
+                      action="edit"
+                      data={rolesList.permissions}
+                      selectedRoleInfo={rolesList.roles.find(
+                        (role: any) => role._id === item._id
+                      )}
+                      refresh={() => getRolesList()}
+                    >
                       <Button variant="ghost" size={"icon"}>
                         {" "}
                         <Edit size={15} className="text-slate-500" />
                       </Button>
                     </ManageRoleModal>{" "}
-                    <ManageRoleModal action="delete">
+                    <ManageRoleModal
+                      action="delete"
+                      data={rolesList.permissions}
+                      selectedRoleInfo={rolesList.roles.find(
+                        (role: any) => role._id === item._id
+                      )}
+                      refresh={() => getRolesList()}
+                    >
                       <Button variant="ghost" size={"icon"}>
                         {" "}
                         <Trash2 size={15} className="text-red-500" />
@@ -180,86 +198,108 @@ export default function Page() {
 interface IManageRoleModal {
   children: ReactNode;
   action: string;
+  data: any;
+  refresh: () => void;
+  selectedRoleInfo?: any;
 }
-const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
+const ManageRoleModal = ({
+  children,
+  action,
+  data,
+  refresh,
+  selectedRoleInfo,
+}: IManageRoleModal) => {
+  const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const validationSchema = Yup.object().shape({
-    lastName: Yup.string().required("This field is required"),
-    firstName: Yup.string().required("This field is required"),
-    email: Yup.string()
-      .email("Invalid email format")
+    name: Yup.string().required("This field is required"),
+    permissions: Yup.array()
+      .min(1, "This field is required")
       .required("This field is required"),
-    role: Yup.string().required("This field is required"),
-    judgeChoice: Yup.array()
-      .of(Yup.string()) // No `required()` here, to allow an empty array initially
-      .test(
-        "judge-choice-required",
-        "This field is required",
-        function (value) {
-          const { role } = this.parent;
-          if (role === "judge") {
-            return value && value.length > 0;
-          }
-          return true;
-        }
-      ),
   });
   const handleSubmit = async (values: any, resetForm: any) => {
-    console.log("values :", values);
-    toast({
-      variant: "success",
-      title: "User Deleted",
-      description: "The user has been successfully deleted.",
-      duration: 2500,
-    });
-    resetForm();
-    /*  const filteredValues = {
-        ...values,
-        supportingDoc: values.supportingDoc.filter(
-          (key: any) => typeof key === "string"
-        ),
-      };
-  
-      console.log("filteredValues :", filteredValues); */
+    setIsLoading(true);
 
-    /*  await apiPost("/api/entry/create", filteredValues)
-        .then((res) => {
-          const { success, message, data } = res;
-          if (success) {
-          }
+    try {
+      if (action === "add") {
+        const res = await apiPost("/api/role/create", values);
+        const { success, message } = res;
+        if (success) {
+          resetForm();
+          setOpen(false);
+          refresh();
           toast({
-            title: " Success!",
-            description: message,
-            duration: 2000,
+            variant: "success",
+            title: "Role Created",
+            description: "The role has been successfully created.",
+            duration: 2500,
           });
-        })
-        .catch((e) => {
-          console.log(e);
-  
+        }
+        if (message.includes("duplicate")) {
           toast({
-            title: " failed",
-  
-            description: "Invalid email or password",
-            duration: 2000,
+            variant: "destructive",
+            title: "Duplicate Role",
+            description: "A role with this name already exists.",
+            duration: 2500,
           });
-        }); */
+        }
+      } else if (action === "edit") {
+        const res = await apiPut(
+          `/api/role/add/permissions/${selectedRoleInfo._id}`,
+          values
+        );
+        const { success, message } = res;
+        if (success) {
+          resetForm();
+          setOpen(false);
+          refresh();
+          toast({
+            variant: "success",
+            title: "Role Updated",
+            description: "The role has been successfully updated.",
+            duration: 2500,
+          });
+        }
+        if (message.includes("duplicate")) {
+          toast({
+            variant: "destructive",
+            title: "Duplicate Role",
+            description: "A role with this name already exists.",
+            duration: 2500,
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Error:", e);
+      toast({
+        title: "Something went wrong",
+        description: "Please try again later.",
+        variant: "destructive",
+        duration: 2000,
+      });
+    }
+    setIsLoading(false);
   };
   return (
     <Formik
+      enableReinitialize
       initialValues={{
-        name: "",
-        entries: [] as string[],
-        users: [] as string[],
-        roles: [] as string[],
-        content: [] as string[],
+        name: selectedRoleInfo?.name || "",
+        permissions: selectedRoleInfo?.permissions || ([] as string[]),
       }}
-      validationSchema={/* validationSchema */ ""}
+      validationSchema={validationSchema}
       onSubmit={(values) => {
-        console.log(values);
+        console.log(values.toString());
       }}
     >
-      {({ values, setFieldValue, resetForm, isValid, dirty, errors }) => {
-        const [open, setOpen] = useState(false);
-
+      {({
+        values,
+        resetForm,
+        isValid,
+        dirty,
+        setFieldTouched,
+        validateField,
+      }) => {
         return (
           <Form>
             <div className="flex justify-center gap-0.5 mx-auto">
@@ -268,6 +308,9 @@ const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
                   {children}
                 </DialogTrigger>
                 <DialogContent
+                  onInteractOutside={(e) => {
+                    e.preventDefault();
+                  }}
                   className={`${
                     action == "delete" ? "sm:max-w-sm" : "sm:max-w-3xl"
                   }  px-10 py-6`}
@@ -289,7 +332,7 @@ const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
                       <div>
                         <div className="flex gap-1 items-center">
                           <Label className="font-semibold text-sm text-[#1F2937]">
-                            Role Name{" "}
+                            Role Name {selectedRoleInfo?.name}
                           </Label>
                           <ErrorMessage
                             name="name"
@@ -307,89 +350,127 @@ const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
                         />
                       </div>
                       <div>
-                        <Label className="font-semibold text-sm text-[#1F2937]">
-                          Permissions
-                        </Label>
-                        {permissions.map((role: any, index) => (
-                          <FieldArray
-                            name={role.name}
-                            render={(arrayHelpers) => (
-                              <Accordion
-                                type="single"
-                                collapsible
-                                className="w-full"
-                                key={index}
-                              >
-                                <AccordionItem
-                                  value="item-1"
-                                  className="border-0"
-                                >
-                                  <AccordionTrigger chevron className="group">
-                                    <div className="flex items-center gap-2 ">
-                                      <ChevronDown
-                                        size={15}
-                                        className="transition-transform duration-200 group-data-[state=open]:rotate-180 "
-                                      />
-                                      <span className=" text-blue-600 font-semibold text-base">
-                                        {role.name}
-                                      </span>
-                                      <CustomBadge
-                                        color={"blue"}
-                                        message={`${role.options.length} / ${role.options.length}`}
-                                        className="rounded-full text-[10px]"
-                                      />
-                                    </div>
-                                  </AccordionTrigger>
-                                  <AccordionContent>
-                                    {role.options.map(
-                                      (option: any, index: any) => (
-                                        <div
-                                          key={index}
-                                          className="flex items-center gap-2"
+                        <div className="flex gap-1 items-center">
+                          <Label className="font-semibold text-sm text-[#1F2937]">
+                            Permissions
+                          </Label>
+                          <ErrorMessage
+                            name="permissions"
+                            component="div"
+                            className=" text-xs text-red-500 font-semibold"
+                          />
+                        </div>
+                        {data && (
+                          <>
+                            <ScrollArea
+                              className="h-full max-h-[500px]"
+                              onBlur={() => {
+                                setFieldTouched("permissions", true),
+                                  validateField("permissions");
+                              }}
+                            >
+                              {" "}
+                              <FieldArray
+                                name="permissions"
+                                render={(arrayHelpers) => (
+                                  <>
+                                    {Object.entries(data).map(
+                                      ([key, value]: any) => (
+                                        <Accordion
+                                          type="single"
+                                          collapsible
+                                          className="w-full"
+                                          key={key}
                                         >
-                                          <Field
-                                            type="checkbox"
-                                            name={role.name}
-                                            id={option.toLowerCase()}
-                                            value={option}
-                                          />
-                                          {/*  <Field
-                                            type="checkbox"
-                                            name={role.name}
-                                            id={option.toLowerCase()}
-                                            value={option}
-                                            checked={(
-                                              values as Record<string, string[]>
-                                            )[
-                                              role.name.toLowerCase()
-                                            ]?.includes(option)}
-                                            onChange={(e: any) => {
-                                              if (e.target.checked) {
-                                                arrayHelpers.push(option);
-                                              } else {
-                                                const idx =
-                                                  values[
-                                                    role.name.toLowerCase()
-                                                  ].indexOf(option);
-                                                arrayHelpers.remove(idx);
-                                              }
-                                            }}
-                                          /> */}
-                                          <label
-                                            htmlFor={option.toLowerCase()}
-                                            className="font-semibold text-base  cursor-pointer"
+                                          <AccordionItem
+                                            value="item-1"
+                                            className="border-0"
                                           >
-                                            {option}
-                                          </label>
-                                        </div>
+                                            <AccordionTrigger
+                                              chevron
+                                              className="group"
+                                            >
+                                              <div className="flex items-center gap-2 ">
+                                                <ChevronDown
+                                                  size={15}
+                                                  className="transition-transform duration-200 group-data-[state=open]:rotate-180 "
+                                                />
+                                                <span className=" text-blue-600 font-semibold text-base">
+                                                  {" "}
+                                                  {key.charAt(0).toUpperCase() +
+                                                    key.slice(1)}
+                                                </span>
+                                                <CustomBadge
+                                                  color={"blue"}
+                                                  message={`${
+                                                    values.permissions.filter(
+                                                      (e: any) =>
+                                                        e.includes(
+                                                          key == "entry"
+                                                            ? "entries"
+                                                            : key
+                                                        )
+                                                    )?.length
+                                                  } / ${value.length}`}
+                                                  className="rounded-full text-[10px]"
+                                                />
+                                              </div>
+                                            </AccordionTrigger>
+
+                                            <AccordionContent>
+                                              {value.map(
+                                                (item: any, index: any) => (
+                                                  <div
+                                                    key={index}
+                                                    className="flex items-center gap-2"
+                                                  >
+                                                    <Field
+                                                      type="checkbox"
+                                                      name="permissions"
+                                                      value={item.name}
+                                                      id={item.name}
+                                                      onChange={(
+                                                        e: React.ChangeEvent<HTMLInputElement>
+                                                      ) => {
+                                                        if (e.target.checked) {
+                                                          arrayHelpers.push(
+                                                            item.name
+                                                          );
+                                                        } else {
+                                                          const idx =
+                                                            values.permissions.indexOf(
+                                                              item.name
+                                                            );
+                                                          if (idx !== -1) {
+                                                            arrayHelpers.remove(
+                                                              idx
+                                                            );
+                                                          }
+                                                        }
+                                                      }}
+                                                    />
+
+                                                    <label
+                                                      htmlFor={item.name}
+                                                      className="font-semibold text-base  cursor-pointer"
+                                                    >
+                                                      {/* {item.name.split(":")[1]} */}
+                                                      {item.desc}
+                                                    </label>
+                                                  </div>
+                                                )
+                                              )}
+                                            </AccordionContent>
+                                          </AccordionItem>
+                                        </Accordion>
                                       )
                                     )}
-                                  </AccordionContent>
-                                </AccordionItem>
-                              </Accordion>
-                            )}
-                          />
-                        ))}
+                                  </>
+                                )}
+                              />
+                            </ScrollArea>
+                          </>
+                        )}
                       </div>
                     </div>
                   )}
@@ -428,10 +509,10 @@ const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
                       </DialogClose>
                       <Button
                         type="submit"
+                        disabled={!isValid || !dirty || isLoading}
                         onClick={() => {
                           handleSubmit(values, resetForm);
 
-                          setOpen(false);
                           /*  toast({
                             variant: "success",
                             title: `Role ${
@@ -443,10 +524,17 @@ const ManageRoleModal = ({ children, action }: IManageRoleModal) => {
                             duration: 2500,
                           }); */
                         }}
-                        className={`bg-[#1F2937] flex justify-center w-fit gap-2 text-sm font-semibold items-center transition-colors duration-300  hover:bg-slate-700 text-white p-2.5 px-4 rounded-md`}
+                        className={`bg-[#1F2937] flex justify-center w-fit gap-2 text-sm font-semibold items-center transition-all duration-300  hover:bg-slate-700 text-white p-2.5 px-4 rounded-md`}
                       >
-                        <Save size={10} /> {action == "edit" && "Update"}
-                        {action == "add" && "Save"}
+                        {isLoading ? (
+                          <Loader2 size={18} className=" animate-spin mx-6" />
+                        ) : (
+                          <>
+                            {" "}
+                            <Save size={10} /> {action == "edit" && "Update"}
+                            {action == "add" && "Save"}
+                          </>
+                        )}
                       </Button>
                     </DialogFooter>
                   )}{" "}
