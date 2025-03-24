@@ -206,12 +206,12 @@ export default function Entries() {
               Place content for the popover here.
             </PopoverContent>
           </Popover>
-          <div className="relative">
+          <div className="relative w-full max-w-[350px]">
             {" "}
             <Input
               type="text"
-              placeholder="Search by keyword"
-              className="pl-10"
+              placeholder="Search by reference number or keyword"
+              className="pl-10 "
             />{" "}
             <Search
               size={15}

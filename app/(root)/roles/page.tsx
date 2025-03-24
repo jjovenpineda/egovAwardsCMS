@@ -73,7 +73,7 @@ export default function Page() {
       if (!data) return;
       setRolesList(data);
     } catch (e) {
-      console.error("Error fetching LGU list:", e);
+      console.error("Error fetching role list:", e);
     }
   };
   useEffect(() => {
@@ -84,7 +84,7 @@ export default function Page() {
     <div className="max-w-[90%] flex flex-col gap-4">
       {" "}
       <h1 className="text-slate-600 font-bold text-2xl uppercase mb-4">
-        Roles
+        Roles & Permissions
       </h1>
       <div className="flex justify-end items-end">
         <ManageRoleModal
@@ -156,7 +156,7 @@ export default function Page() {
                         <Edit size={15} className="text-slate-500" />
                       </Button>
                     </ManageRoleModal>{" "}
-                    <ManageRoleModal
+                    {/*   <ManageRoleModal
                       action="delete"
                       data={rolesList.permissions}
                       selectedRoleInfo={rolesList.roles.find(
@@ -168,7 +168,7 @@ export default function Page() {
                         {" "}
                         <Trash2 size={15} className="text-red-500" />
                       </Button>
-                    </ManageRoleModal>{" "}
+                    </ManageRoleModal>{" "} */}
                   </div>
                 </TableCell>
               </TableRow>
@@ -344,7 +344,7 @@ const ManageRoleModal = ({
                           type="text"
                           autoComplete="off"
                           name="name"
-                          placeholder="Enter Role Name"
+                          placeholder="Role Name"
                           as={Input}
                           className=" space-y-8 rounded-md lg:w-1/2 bg-white "
                         />

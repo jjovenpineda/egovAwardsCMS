@@ -13,17 +13,11 @@ import {
   DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+
 import {
   Pagination,
   PaginationContent,
@@ -43,17 +37,13 @@ import {
   Eye,
   MinusCircle,
   RotateCcw,
-  Search,
   Sliders,
   X,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -61,15 +51,26 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ErrorMessage, Field, Form, Formik } from "formik";
-import ModalWrapper from "@/components/shared/modal-wrapper";
-import LGUForms from "@/components/lgu-forms";
-import { PSGC } from "@/constants";
+import { apiGet } from "@/utils/api";
+
 export default function Page() {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get("filter");
-  const [selected, setSelected] = useState<string[]>([""]);
   const [page1Modal, setPage1Modal] = useState(false);
+  const [registrationsList, setRegistrationsList] = useState<any>([]);
+  const getRegistrationsList = async () => {
+    try {
+      const res = await apiGet("/api/lgu/participants/list");
+      const { data } = res;
+      if (!data) return;
+      setRegistrationsList(data);
+    } catch (e) {
+      console.error("Error fetching participants list:", e);
+    }
+  };
+  useEffect(() => {
+    getRegistrationsList();
+  }, []);
   const filterChecklist = [
     {
       title: "FILTER BY STATUS",
@@ -345,121 +346,104 @@ export default function Page() {
               const [quickScoreList, setQuickScoreList] = useState<string[]>(
                 []
               );
-              const [status, setStatus] = useState("approved");
-              const data = [
-                {
-                  invoice: "INV004",
-                  paymentStatus: "Paid",
-                  totalAmount: "$450.00",
-                  paymentMethod: "Credit Card",
-                  ranking: 1,
-                },
-                {
-                  invoice: "INV005",
-                  paymentStatus: "Paid",
-                  totalAmount: "$450.00",
-                  paymentMethod: "Credit Card",
-                  ranking: 2,
-                },
-              ];
 
-              return data.map((item, index) => (
-                <React.Fragment key={index}>
-                  <TableRow
-                    key={index}
-                    className="border-b-0 hover:bg-transparent"
-                  >
-                    <TableCell className="font-medium">
-                      <div className="text-base">
-                        <h2 className="text-slate-900 line-clamp-1">
-                          Lorem ipsum
+              return registrationsList?.participants?.map(
+                (item: any, index: any) => (
+                  <React.Fragment key={index}>
+                    <TableRow
+                      key={index}
+                      className="border-b-0 hover:bg-transparent"
+                    >
+                      <TableCell className="font-medium">
+                        <div className="text-base">
+                          <h2 className="text-slate-900 line-clamp-1">{}</h2>{" "}
+                          <a href="#" className="line-clamp-1 text-blue-400 ">
+                            lorem@gmail.com
+                          </a>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <h2 className="text-slate-500 text-base line-clamp-1">
+                          Camarines Sur lorem
                         </h2>{" "}
-                        <a href="#" className="line-clamp-1 text-blue-400 ">
-                          lorem@gmail.com
-                        </a>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <h2 className="text-slate-500 text-base line-clamp-1">
-                        Camarines Sur lorem
-                      </h2>{" "}
-                      <h2 className="text-slate-500 text-base line-clamp-1">
-                        Bicol (Region V)
-                      </h2>{" "}
-                    </TableCell>
-                    <TableCell>
-                      <div className="bg-slate-200 transition-colors hover:bg-slate-300 text-xs  text-slate-900 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap rounded-full  w-full">
-                        {" "}
-                        <Image src={pdf} alt="PDF Icon" />
-                        View PDF <Eye size={10} className=" shrink-0" />
-                      </div>
-                    </TableCell>
-                    <TableCell className="flex flex-col text-center space-y-1">
-                      <button
-                        onClick={() => setPage1Modal(true)}
-                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF]  rounded-full flex gap-1 items-center p-1"
-                      >
-                        <Eye size={15} />
-                        View Details
-                      </button>
-                      <Dialog open={page1Modal} onOpenChange={setPage1Modal}>
-                        <DialogTrigger asChild></DialogTrigger>
-                        <DialogContent className="w-full max-w-[887px]">
-                          <DialogHeader>
-                            <DialogTitle>
-                              {" "}
-                              <h2 className="font-bold text-lg uppercase text-blue-900 mb-6">
-                                Details
-                              </h2>
-                            </DialogTitle>
-                            <DialogDescription></DialogDescription>
-                          </DialogHeader>
-                          <Details />
-                          <div className="flex items-end justify-end gap-4">
-                            <DialogClose>
-                              <Button variant={"outline"} type="submit">
-                                <X size={15} /> Close
-                              </Button>
-                            </DialogClose>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                      {status == "approved" && (
-                        <Button
-                          onClick={() => setStatus("pending")}
-                          variant={"outline"}
-                          size={"sm"}
-                          className={`${
-                            quickScoreList.includes(index.toString())
-                              ? "bg-teal-500 hover:bg-teal-500 text-slate-50 hover:text-slate-50"
-                              : "bg-[#CCFBF1] hover:bg-[#b0f6e7] text-[#115E59] hover:text-[#115E59]"
-                          }     h-fit rounded-full w-min px-1.5 p-1`}
+                        <h2 className="text-slate-500 text-base line-clamp-1">
+                          Bicol (Region V)
+                        </h2>{" "}
+                      </TableCell>
+                      <TableCell>
+                        <div className="bg-slate-200 transition-colors hover:bg-slate-300 text-xs  text-slate-900 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap rounded-full  w-full">
+                          {" "}
+                          <Image src={pdf} alt="PDF Icon" />
+                          View PDF <Eye size={10} className=" shrink-0" />
+                        </div>
+                      </TableCell>
+                      <TableCell className="flex flex-col text-center space-y-1">
+                        <button
+                          onClick={() => setPage1Modal(true)}
+                          className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF]  rounded-full flex gap-1 items-center p-1"
                         >
-                          <div className="flex gap-1">
-                            <ClipboardCheckIcon size={15} />
-                            Approved
-                          </div>
-                        </Button>
-                      )}
-                      {status == "pending" && (
-                        <Button
-                          onClick={() => setStatus("approved")}
-                          variant={"outline"}
-                          size={"sm"}
-                          className={`bg-orange-100 hover:bg-orange-200 text-orange-600 hover:text-orange-700
+                          <Eye size={15} />
+                          View Details
+                        </button>
+                        <Dialog open={page1Modal} onOpenChange={setPage1Modal}>
+                          <DialogTrigger asChild></DialogTrigger>
+                          <DialogContent className="w-full max-w-[887px]">
+                            <DialogHeader>
+                              <DialogTitle>
+                                {" "}
+                                <h2 className="font-bold text-lg uppercase text-blue-900 mb-6">
+                                  Details
+                                </h2>
+                              </DialogTitle>
+                              <DialogDescription></DialogDescription>
+                            </DialogHeader>
+                            <Details />
+                            <div className="flex items-end justify-end gap-4">
+                              <DialogClose>
+                                <Button variant={"outline"} type="submit">
+                                  <X size={15} /> Close
+                                </Button>
+                              </DialogClose>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                        {item.isApproved && (
+                          <Button
+                            /*                             onClick={() => setStatus("pending")}
+                             */ variant={"outline"}
+                            size={"sm"}
+                            className={`${
+                              quickScoreList.includes(index.toString())
+                                ? "bg-teal-500 hover:bg-teal-500 text-slate-50 hover:text-slate-50"
+                                : "bg-[#CCFBF1] hover:bg-[#b0f6e7] text-[#115E59] hover:text-[#115E59]"
+                            }     h-fit rounded-full w-min px-1.5 p-1`}
+                          >
+                            <div className="flex gap-1">
+                              <ClipboardCheckIcon size={15} />
+                              Verified
+                            </div>
+                          </Button>
+                        )}
+                        {!item.isApproved && (
+                          <Button
+                            /*                             onClick={() => setStatus("approved")}
+                             */ variant={"outline"}
+                            size={"sm"}
+                            className={`bg-orange-100 hover:bg-orange-200 text-orange-600 hover:text-orange-700
                               h-fit rounded-full w-min px-1.5 p-1`}
-                        >
-                          <div className="flex gap-1">
-                            {" "}
-                            <MinusCircle size={15} />
-                            For Approval
-                          </div>
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                </React.Fragment>
-              ));
+                          >
+                            <div className="flex gap-1">
+                              {" "}
+                              <MinusCircle size={15} />
+                              For Verification
+                            </div>
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
+                )
+              );
             })()}
           </TableBody>
         </Table>
@@ -606,7 +590,7 @@ const Details = () => {
                     </div>
                     <div>
                       <div className=" font-medium text-slate-500">
-                        {values[item.value]}
+                        {/*  {values[item.value]} */}
                       </div>
                     </div>
                   </>

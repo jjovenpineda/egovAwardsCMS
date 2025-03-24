@@ -78,9 +78,7 @@ export default function Page() {
   useEffect(() => {
     getUserList();
   }, []);
-  useEffect(() => {
-    console.log("userlist :", userlist);
-  }, [userlist]);
+
   return (
     <div className="max-w-[90%] flex flex-col gap-4">
       {" "}
@@ -300,9 +298,7 @@ const ManageUserModal = ({
 }: IManageUserModal) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  useEffect(() => {
-    console.log("selectedUserInfo :", selectedUserInfo);
-  }, [selectedUserInfo]);
+  useEffect(() => {}, [selectedUserInfo]);
   const validationSchema = Yup.object().shape({
     lastname: Yup.string().required("This field is required"),
     firstname: Yup.string().required("This field is required"),
@@ -347,6 +343,13 @@ const ManageUserModal = ({
             variant: "destructive",
             title: "Duplicate Email",
             description: "A user with this email already exists.",
+            duration: 2500,
+          });
+        } else if (message.includes("Invalid email.")) {
+          toast({
+            variant: "destructive",
+            title: "Invalid Email",
+            description: "Please enter a valid email address.",
             duration: 2500,
           });
         }
@@ -402,7 +405,6 @@ const ManageUserModal = ({
       onSubmit={handleSubmit}
     >
       {({ values, setFieldValue, resetForm, isValid, dirty, errors }) => {
-        const [open, setOpen] = useState(false);
         return (
           <Form>
             <div className="flex justify-center gap-0.5 mx-auto">
@@ -447,7 +449,7 @@ const ManageUserModal = ({
                           type="text"
                           autoComplete="off"
                           name="lastname"
-                          placeholder="Enter Last Name"
+                          placeholder="Last Name"
                           as={Input}
                           className=" space-y-8 rounded-md bg-white "
                         />
@@ -467,7 +469,7 @@ const ManageUserModal = ({
                           type="text"
                           autoComplete="off"
                           name="firstname"
-                          placeholder="Enter First Name"
+                          placeholder="First Name"
                           as={Input}
                           className=" space-y-8 rounded-md bg-white "
                         />
@@ -487,7 +489,7 @@ const ManageUserModal = ({
                           type="text"
                           autoComplete="off"
                           name="email"
-                          placeholder="Enter Email"
+                          placeholder="Email"
                           as={Input}
                           className=" space-y-8 rounded-md bg-white "
                         />

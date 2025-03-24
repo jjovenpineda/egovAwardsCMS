@@ -45,9 +45,7 @@ import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -55,12 +53,23 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Field, Form, Formik } from "formik";
+import { apiGet } from "@/utils/api";
 export default function Page() {
-  const searchParams = useSearchParams();
-  const filterParams = searchParams.get("filter");
-  const [selected, setSelected] = useState<string[]>([""]);
-
+  const [participationsList, setParticipationsList] = useState<any>([]);
+  const getParticipationsList = async () => {
+    try {
+      const res = await apiGet("/api/lgu/participants/list");
+      const { data } = res;
+      if (!data) return;
+      setParticipationsList(data);
+    } catch (e) {
+      console.error("Error fetching participants list:", e);
+    }
+  };
+  useEffect(() => {
+    getParticipationsList();
+  }, []);
   const filterChecklist = [
     {
       title: "FILTER BY STATUS",
@@ -372,165 +381,164 @@ export default function Page() {
                     : [...prev, number.toString()]
                 );
               };
-              const data = [
-                {
-                  invoice: "INV004",
-                  paymentStatus: "Paid",
-                  totalAmount: "$450.00",
-                  paymentMethod: "Credit Card",
-                  ranking: 1,
-                },
-                {
-                  invoice: "INV005",
-                  paymentStatus: "Paid",
-                  totalAmount: "$450.00",
-                  paymentMethod: "Credit Card",
-                  ranking: 2,
-                },
-              ];
 
-              return data.map((item, index) => (
-                <React.Fragment key={index}>
-                  <TableRow
-                    key={index}
-                    className="border-b-0 hover:bg-transparent"
-                  >
-                    <TableCell className="font-medium">
-                      <h2 className="text-slate-900 text-base line-clamp-2">
-                        Calabanga
-                      </h2>{" "}
-                    </TableCell>
-                    <TableCell>
-                      <h2 className="text-slate-500 text-base line-clamp-2">
-                        Camarines Sur
-                      </h2>{" "}
-                    </TableCell>
-                    <TableCell>
-                      <h2 className="text-slate-500 text-base line-clamp-2">
-                        Bicol (Region V)
-                      </h2>{" "}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <h2 className="text-slate-900 text-base line-clamp-2">
-                        4
-                      </h2>{" "}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={6} className="p-0 border-0">
-                      <Accordion
-                        type="multiple"
-                        value={quickScoreList}
-                        onValueChange={setQuickScoreList}
-                      >
-                        <AccordionItem
-                          value={index.toString()}
-                          className="border-0 "
+              return participationsList?.participants?.map(
+                (item: any, index: any) => (
+                  <React.Fragment key={index}>
+                    <TableRow
+                      key={index}
+                      className="border-b-0 hover:bg-transparent"
+                    >
+                      <TableCell className="font-medium">
+                        <h2 className="text-slate-900 text-base line-clamp-2">
+                          {item.lgu}
+                        </h2>{" "}
+                      </TableCell>
+                      <TableCell>
+                        <h2 className="text-slate-500 text-base line-clamp-2">
+                          {item.province !== "" ? item.province : ""}
+                        </h2>{" "}
+                      </TableCell>
+                      <TableCell>
+                        <h2 className="text-slate-500 text-base line-clamp-2">
+                          {item.region}
+                        </h2>{" "}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <h2 className="text-slate-900 text-base line-clamp-2">
+                          {item.no_of_entries}
+                        </h2>{" "}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell colSpan={6} className="p-0 border-0">
+                        <Accordion
+                          type="multiple"
+                          value={quickScoreList}
+                          onValueChange={setQuickScoreList}
                         >
-                          <Formik
-                            initialValues={{
-                              impact: 0,
-                              relevance: 0,
-                              sustainability: 0,
-                              innovation: 0,
-                              alignment: 0,
-                            }}
-                            validationSchema={validationSchema}
-                            onSubmit={(values, actions) => {
-                              console.log(values);
-                            }}
-                            className="flex gap-16"
+                          <AccordionItem
+                            value={index.toString()}
+                            className="border-0 "
                           >
-                            {({ values, setFieldValue }) => {
-                              return (
-                                <Form>
-                                  <AccordionContent className="flex w-full justify-around items-center bg-green-100 p-6 ">
-                                    {Object.keys(values).map((item, index) => (
-                                      <div
-                                        key={index}
-                                        className="flex flex-col items-center"
-                                      >
-                                        <h3 className="text-xs font-medium text-green-900">
-                                          {item === "alignment"
-                                            ? " Alignment with Goals"
-                                            : item.charAt(0).toUpperCase() +
-                                              item.slice(1)}
+                            <Formik
+                              initialValues={{
+                                impact: 0,
+                                relevance: 0,
+                                sustainability: 0,
+                                innovation: 0,
+                                alignment: 0,
+                              }}
+                              validationSchema={validationSchema}
+                              onSubmit={(values, actions) => {
+                                console.log(values);
+                              }}
+                              className="flex gap-16"
+                            >
+                              {({ values, setFieldValue }) => {
+                                return (
+                                  <Form>
+                                    <AccordionContent className="flex w-full justify-around items-center bg-green-100 p-6 ">
+                                      {Object.keys(values).map(
+                                        (item, index) => (
+                                          <div
+                                            key={index}
+                                            className="flex flex-col items-center"
+                                          >
+                                            <h3 className="text-xs font-medium text-green-900">
+                                              {item === "alignment"
+                                                ? " Alignment with Goals"
+                                                : item.charAt(0).toUpperCase() +
+                                                  item.slice(1)}
+                                            </h3>
+                                            <div className="flex items-center gap-1">
+                                              <Field
+                                                type="text"
+                                                autoComplete="off"
+                                                name={item}
+                                                as={Input}
+                                                onChange={(e: any) => {
+                                                  e.target.value =
+                                                    e.target.value.replace(
+                                                      /\D/g,
+                                                      ""
+                                                    );
+                                                  if (
+                                                    e.target.value.length > 2
+                                                  ) {
+                                                    e.target.value =
+                                                      e.target.value.slice(
+                                                        0,
+                                                        2
+                                                      );
+                                                  }
+                                                  if (
+                                                    Number(e.target.value > 50)
+                                                  ) {
+                                                    setFieldValue(item, 50);
+                                                  } else {
+                                                    setFieldValue(
+                                                      item,
+                                                      Number(e.target.value)
+                                                    );
+                                                  }
+                                                }}
+                                                className="w-11"
+                                              />
+
+                                              <h3 className="text-base font-medium">
+                                                /50
+                                              </h3>
+                                            </div>
+                                          </div>
+                                        )
+                                      )}
+
+                                      <div className="text-center font-bold">
+                                        <h2 className="text-xs text-green-900">
+                                          Total
+                                        </h2>
+                                        <h3 className="text-base">
+                                          {Object.values(values).reduce(
+                                            (accumulator, currentValue) =>
+                                              accumulator + currentValue
+                                          )}
+                                          /250
                                         </h3>
-                                        <div className="flex items-center gap-1">
-                                          <Field
-                                            type="text"
-                                            autoComplete="off"
-                                            name={item}
-                                            as={Input}
-                                            onChange={(e: any) => {
-                                              e.target.value =
-                                                e.target.value.replace(
-                                                  /\D/g,
-                                                  ""
-                                                );
-                                              if (e.target.value.length > 2) {
-                                                e.target.value =
-                                                  e.target.value.slice(0, 2);
-                                              }
-                                              if (Number(e.target.value > 50)) {
-                                                setFieldValue(item, 50);
-                                              } else {
-                                                setFieldValue(
-                                                  item,
-                                                  Number(e.target.value)
-                                                );
-                                              }
-                                            }}
-                                            className="w-11"
-                                          />
-
-                                          <h3 className="text-base font-medium">
-                                            /50
-                                          </h3>
-                                        </div>
                                       </div>
-                                    ))}
-
-                                    <div className="text-center font-bold">
-                                      <h2 className="text-xs text-green-900">
-                                        Total
-                                      </h2>
-                                      <h3 className="text-base">
-                                        {Object.values(values).reduce(
-                                          (accumulator, currentValue) =>
-                                            accumulator + currentValue
-                                        )}
-                                        /250
-                                      </h3>
-                                    </div>
-                                    <div className="flex gap-2">
-                                      {" "}
-                                      <Button
-                                        type="submit"
-                                        onClick={() => toggleQuickScore(index)}
-                                        className="bg-emerald-500 hover:bg-emerald-400 font-semibold"
-                                      >
-                                        Save
-                                      </Button>
-                                      <Button
-                                        type="button"
-                                        onClick={() => toggleQuickScore(index)}
-                                        className="bg-white hover:bg-slate-100 text-emerald-400 hover:text-emerald-700 font-semibold"
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  </AccordionContent>
-                                </Form>
-                              );
-                            }}
-                          </Formik>
-                        </AccordionItem>
-                      </Accordion>
-                    </TableCell>
-                  </TableRow>
-                </React.Fragment>
-              ));
+                                      <div className="flex gap-2">
+                                        {" "}
+                                        <Button
+                                          type="submit"
+                                          onClick={() =>
+                                            toggleQuickScore(index)
+                                          }
+                                          className="bg-emerald-500 hover:bg-emerald-400 font-semibold"
+                                        >
+                                          Save
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          onClick={() =>
+                                            toggleQuickScore(index)
+                                          }
+                                          className="bg-white hover:bg-slate-100 text-emerald-400 hover:text-emerald-700 font-semibold"
+                                        >
+                                          Cancel
+                                        </Button>
+                                      </div>
+                                    </AccordionContent>
+                                  </Form>
+                                );
+                              }}
+                            </Formik>
+                          </AccordionItem>
+                        </Accordion>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
+                )
+              );
             })()}
           </TableBody>
         </Table>

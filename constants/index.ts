@@ -6,6 +6,7 @@ import {
   ListTodo,
   MapPin,
   MenuSquare,
+  Paperclip,
   Settings,
   UserCog,
   Users,
@@ -25,7 +26,7 @@ export const links = [
       {
         href: "/registrations",
         label: "Registrations",
-        icons: Building2,
+        icons: Paperclip,
         query: null,
       },
       {
