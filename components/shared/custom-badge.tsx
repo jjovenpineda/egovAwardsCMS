@@ -7,10 +7,10 @@ export default function CustomBadge({
   icon,
   className,
 }: {
-  color: string;
+  color?: string;
   message: string;
   icon?: React.ReactNode;
-  className: string;
+  className?: string;
 }) {
   const colors: Record<string, string> = {
     gray: "text-gray-700 bg-gray-100",
@@ -24,7 +24,7 @@ export default function CustomBadge({
     <div>
       <Badge
         className={`pointer-events-none shadow-none ${
-          colors[color] || "bg-gray-100 text-gray-500 h-min"
+          colors[color ?? "gray"] || "bg-gray-100 text-gray-500 h-min"
         } ${className}`}
       >
         {icon && <span className="mr-1">{icon}</span>}

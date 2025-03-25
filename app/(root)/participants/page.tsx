@@ -2,23 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import Link from "next/link";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
   Pagination,
@@ -30,12 +23,9 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-import { useSearchParams } from "next/navigation";
 import {
   ChevronDown,
-  ClipboardCheckIcon,
   Download,
-  Eye,
   RotateCcw,
   Search,
   Sliders,

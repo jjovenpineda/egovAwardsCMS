@@ -1,32 +1,20 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
 import React, { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import {
-  Check,
-  CheckCircle2Icon,
-  Dot,
-  Eye,
-  EyeOffIcon,
-  Loader2,
-  Lock,
-  X,
-} from "lucide-react";
+import { Check, Eye, EyeOffIcon, Loader2, Lock, X } from "lucide-react";
 import * as Yup from "yup";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, m } from "motion/react";
-import { apiGet, apiPost, apiPut } from "@/utils/api";
+import { apiGet, apiPut } from "@/utils/api";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
 
 import dict from "@/public/assets/images/dict2.webp";
 import { Label } from "@/components/ui/label";
 import FloatingIcons from "@/components/shared/floating-icons";
-import Loading from "@/components/shared/loading";
-import { storage } from "@/utils/useStorage";
-import { decrypt } from "@/utils/utility";
 
 export default function SignInPage() {
   const searchParams = useSearchParams();
@@ -78,7 +66,15 @@ export default function SignInPage() {
     }
   };
   return (
-    <div className="size-full relative z-10">
+    <m.div
+      initial={{ opacity: 0, y: 100 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.6,
+        ease: "easeOut",
+      }}
+      className="size-full flex justify-center items-center min-h-screen relative z-10"
+    >
       <>
         {isLoaded && (
           <>
@@ -472,6 +468,6 @@ export default function SignInPage() {
           </>
         )}
       </>
-    </div>
+    </m.div>
   );
 }

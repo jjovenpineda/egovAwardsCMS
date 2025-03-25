@@ -91,7 +91,7 @@ export default function ModalWrapper({
             <DialogFooter className="">
               <Button
                 variant={"outline"}
-                className="outline outline-1"
+                className="border-black"
                 type="button"
                 onClick={() => {
                   onClose(), loadCachedData();

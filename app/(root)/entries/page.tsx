@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as Yup from "yup";
 import Link from "next/link";
 import {
@@ -18,7 +18,6 @@ import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
   Pagination,
@@ -56,112 +55,32 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Field, Form, Formik } from "formik";
+import { entriesFilterOptions } from "@/constants";
+import { apiGet } from "@/utils/api";
+import { DownloadEntries } from "@/components/downloadEntries";
+import Loaders from "@/components/loaders";
 export default function Entries() {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get("filter");
-  const [selected, setSelected] = useState<string[]>([""]);
+  const [entriesList, setEntriesList] = useState<any>([]);
+  const downloadRef = useRef<HTMLButtonElement>(null);
 
-  const filterChecklist = [
-    {
-      title: "FILTER BY STATUS",
-      options: [
-        { id: "status-select-all", label: "Select All" },
-        { id: "status-review", label: "For Review" },
-        { id: "status-graded", label: "Graded" },
-      ],
-    },
-    {
-      title: "FILTER BY CATEGORY",
-      options: [
-        { id: "category-select-all", label: "Select All" },
-        { id: "category-g2a", label: "G2A" },
-        { id: "category-g2b", label: "G2B" },
-        { id: "category-g2c", label: "G2C" },
-        { id: "category-g2d", label: "G2D" },
-        { id: "category-g2e", label: "G2E" },
-      ],
-    },
-    {
-      title: "FILTER BY SDGs",
-      options: [
-        { id: "sdg-select-all", label: "Select All" },
-        { id: "sdg-no-poverty", label: "No Poverty" },
-        { id: "sdg-zero-hunger", label: "Zero Hunger" },
-        {
-          id: "sdg-good-health",
-          label: "Good Health and Well-being",
-        },
-        {
-          id: "sdg-quality-education",
-          label: "Quality Education",
-        },
-        { id: "sdg-gender-equality", label: "Gender Equality" },
-        {
-          id: "sdg-clean-water",
-          label: "Clean Water and Sanitation",
-        },
-        {
-          id: "sdg-affordable-energy",
-          label: "Affordable and Clean Energy",
-        },
-        {
-          id: "sdg-decent-work",
-          label: "Decent Work and Economic Growth",
-        },
-        {
-          id: "sdg-industry",
-          label: "Industry, Innovation, and Infrastructure",
-        },
-        {
-          id: "sdg-reduced-inequalities",
-          label: "Reduced Inequalities",
-        },
-        {
-          id: "sdg-sustainable-cities",
-          label: "Sustainable Cities and Communities",
-        },
-        {
-          id: "sdg-responsible-consumption",
-          label: "Responsible Consumption and Production",
-        },
-        { id: "sdg-climate-action", label: "Climate Action" },
-        {
-          id: "sdg-life-below-water",
-          label: "Life Below Water",
-        },
-        { id: "sdg-life-on-land", label: "Life on Land" },
-        {
-          id: "sdg-peace-justice",
-          label: "Peace, Justice, and Strong Institutions",
-        },
-        {
-          id: "sdg-partnerships",
-          label: "Partnerships for the Goals",
-        },
-      ],
-    },
-    {
-      title: "FILTER BY REGIONS",
-      options: [
-        { id: "region-select-all", label: "Select All" },
-        { id: "region-ncr", label: "NCR" },
-        { id: "region-car", label: "CAR" },
-        { id: "region-1", label: "Region 1" },
-        { id: "region-3", label: "Region 3" },
-        { id: "region-4a", label: "Region 4A" },
-        { id: "region-4b", label: "Region 4B" },
-        { id: "region-5", label: "Region 5" },
-        { id: "region-6", label: "Region 6" },
-        { id: "region-8", label: "Region 8" },
-        { id: "region-9", label: "Region 9" },
-        { id: "region-11", label: "Region 11" },
-        { id: "region-12", label: "Region 12" },
-        { id: "region-13", label: "Region 13" },
-        { id: "region-barmm", label: "BARMM" },
-      ],
-    },
-  ];
+  const [isLoading, setIsLoading] = useState(false);
+  /*  const getEntryList = async () => {
+    try {
+      const res = await apiGet("/api/lgu/participants/list");
+      const { data } = res;
+      if (!data) return;
+      setEntriesList(data);
+    } catch (e) {
+      console.error("Error fetching participants list:", e);
+    }
+  };
+  useEffect(() => {
+    getEntryList();
+  }, []); */
+
   const validationSchema = Yup.object().shape({
     impact: Yup.number()
       .typeError("Must be a number")
@@ -243,7 +162,7 @@ export default function Entries() {
                 align="start"
                 className="grid grid-cols-2 max-h-[60vh] overflow-y-scroll"
               >
-                {filterChecklist.map((section, index) => (
+                {entriesFilterOptions?.map((section, index) => (
                   <div key={index} className={`${index > 1 && "col-span-2 "}`}>
                     {index > 1 && <hr className="my-6"></hr>}
                     <h3 className="text-xs text-slate-500 font-semibold mb-3">
@@ -456,12 +375,26 @@ export default function Entries() {
                       <Button
                         variant={"outline"}
                         size={"sm"}
+                        disabled={isLoading}
+                        onClick={() => {
+                          if (downloadRef.current) {
+                            downloadRef.current.click();
+                          }
+                        }}
                         className="bg-[#F3F4F6] hover:bg-[#e3e3e3] text-[#1F2937] h-fit p-1 px-1.5 rounded-full w-min "
                       >
                         <div className="flex gap-1">
-                          {" "}
-                          <Download size={15} />
-                          Download
+                          {isLoading ? (
+                            <div className="px-6 h-4">
+                              <Loaders loader={"orbit"} size={25} />
+                            </div>
+                          ) : (
+                            <>
+                              {" "}
+                              <Download size={15} />
+                              Download
+                            </>
+                          )}
                         </div>
                       </Button>
                     </TableCell>
@@ -601,6 +534,11 @@ export default function Entries() {
           </PaginationContent>
         </Pagination>
       </div>
+      <DownloadEntries
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        ref={downloadRef}
+      />
     </div>
   );
 }

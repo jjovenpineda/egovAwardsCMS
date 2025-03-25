@@ -54,6 +54,7 @@ import CustomBadge from "@/components/shared/custom-badge";
 import { toast } from "@/hooks/use-toast";
 import { apiGet, apiPost, apiPut } from "@/utils/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Loaders from "@/components/loaders";
 const data = [
   {
     role: "Super Admin",
@@ -527,7 +528,7 @@ const ManageRoleModal = ({
                         className={`bg-[#1F2937] flex justify-center w-fit gap-2 text-sm font-semibold items-center transition-all duration-300  hover:bg-slate-700 text-white p-2.5 px-4 rounded-md`}
                       >
                         {isLoading ? (
-                          <Loader2 size={18} className=" animate-spin mx-6" />
+                          <Loaders loader={"wobble"} color="white" size={30} />
                         ) : (
                           <>
                             {" "}

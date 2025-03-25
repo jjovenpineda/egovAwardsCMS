@@ -73,7 +73,7 @@ export const links = [
     icons: MapPin,
     items: [
       {
-        href: "#####",
+        href: "/settings",
         label: "Account Settings",
         icons: Settings,
         query: null,
@@ -181,3 +181,103 @@ export const PSGC = {
     },
   ],
 };
+export const entriesFilterOptions = [
+  {
+    title: "FILTER BY STATUS",
+    options: [
+      { id: "status-select-all", label: "Select All" },
+      { id: "status-review", label: "For Review" },
+      { id: "status-graded", label: "Graded" },
+    ],
+  },
+  {
+    title: "FILTER BY CATEGORY",
+    options: [
+      { id: "category-select-all", label: "Select All" },
+      { id: "category-g2a", label: "G2A" },
+      { id: "category-g2b", label: "G2B" },
+      { id: "category-g2c", label: "G2C" },
+      { id: "category-g2d", label: "G2D" },
+      { id: "category-g2e", label: "G2E" },
+    ],
+  },
+  {
+    title: "FILTER BY SDGs",
+    options: [
+      { id: "sdg-select-all", label: "Select All" },
+      { id: "sdg-no-poverty", label: "No Poverty" },
+      { id: "sdg-zero-hunger", label: "Zero Hunger" },
+      {
+        id: "sdg-good-health",
+        label: "Good Health and Well-being",
+      },
+      {
+        id: "sdg-quality-education",
+        label: "Quality Education",
+      },
+      { id: "sdg-gender-equality", label: "Gender Equality" },
+      {
+        id: "sdg-clean-water",
+        label: "Clean Water and Sanitation",
+      },
+      {
+        id: "sdg-affordable-energy",
+        label: "Affordable and Clean Energy",
+      },
+      {
+        id: "sdg-decent-work",
+        label: "Decent Work and Economic Growth",
+      },
+      {
+        id: "sdg-industry",
+        label: "Industry, Innovation, and Infrastructure",
+      },
+      {
+        id: "sdg-reduced-inequalities",
+        label: "Reduced Inequalities",
+      },
+      {
+        id: "sdg-sustainable-cities",
+        label: "Sustainable Cities and Communities",
+      },
+      {
+        id: "sdg-responsible-consumption",
+        label: "Responsible Consumption and Production",
+      },
+      { id: "sdg-climate-action", label: "Climate Action" },
+      {
+        id: "sdg-life-below-water",
+        label: "Life Below Water",
+      },
+      { id: "sdg-life-on-land", label: "Life on Land" },
+      {
+        id: "sdg-peace-justice",
+        label: "Peace, Justice, and Strong Institutions",
+      },
+      {
+        id: "sdg-partnerships",
+        label: "Partnerships for the Goals",
+      },
+    ],
+  },
+  {
+    title: "FILTER BY REGIONS",
+    options: [
+      { id: "region-select-all", label: "Select All" },
+      { id: "region-ncr", label: "NCR" },
+      { id: "region-car", label: "CAR" },
+      { id: "region-1", label: "Region 1" },
+      { id: "region-3", label: "Region 3" },
+      { id: "region-4a", label: "Region 4A" },
+      { id: "region-4b", label: "Region 4B" },
+      { id: "region-5", label: "Region 5" },
+      { id: "region-6", label: "Region 6" },
+      { id: "region-8", label: "Region 8" },
+      { id: "region-9", label: "Region 9" },
+      { id: "region-11", label: "Region 11" },
+      { id: "region-12", label: "Region 12" },
+      { id: "region-13", label: "Region 13" },
+      { id: "region-barmm", label: "BARMM" },
+    ],
+  },
+];

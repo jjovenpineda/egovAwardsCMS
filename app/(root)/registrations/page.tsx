@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import * as Yup from "yup";
 import Link from "next/link";
 import {
@@ -13,6 +13,7 @@ import {
   DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -31,6 +32,7 @@ import pdf from "@/public/assets/images/pdf.svg";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import {
+  Check,
   ChevronDown,
   ClipboardCheckIcon,
   Download,
@@ -52,6 +54,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { apiGet } from "@/utils/api";
+import CustomBadge from "@/components/shared/custom-badge";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -60,10 +63,10 @@ export default function Page() {
   const [registrationsList, setRegistrationsList] = useState<any>([]);
   const getRegistrationsList = async () => {
     try {
-      const res = await apiGet("/api/lgu/participants/list");
+      const res = await apiGet("/api/lgu/registrations/list");
       const { data } = res;
       if (!data) return;
-      setRegistrationsList(data);
+      setRegistrationsList(data.registrants);
     } catch (e) {
       console.error("Error fetching participants list:", e);
     }
@@ -347,103 +350,76 @@ export default function Page() {
                 []
               );
 
-              return registrationsList?.participants?.map(
-                (item: any, index: any) => (
-                  <React.Fragment key={index}>
-                    <TableRow
-                      key={index}
-                      className="border-b-0 hover:bg-transparent"
-                    >
-                      <TableCell className="font-medium">
-                        <div className="text-base">
-                          <h2 className="text-slate-900 line-clamp-1">{}</h2>{" "}
-                          <a href="#" className="line-clamp-1 text-blue-400 ">
-                            lorem@gmail.com
-                          </a>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <h2 className="text-slate-500 text-base line-clamp-1">
-                          Camarines Sur lorem
+              return registrationsList?.map((item: any, index: any) => (
+                <React.Fragment key={index}>
+                  <TableRow
+                    key={index}
+                    className="border-b-0 hover:bg-transparent"
+                  >
+                    <TableCell className="font-medium">
+                      <div className="text-base">
+                        <h2 className="text-slate-900 line-clamp-1">
+                          {item.firstname +
+                            " " +
+                            item.middlename +
+                            " " +
+                            item.lastname}
                         </h2>{" "}
-                        <h2 className="text-slate-500 text-base line-clamp-1">
-                          Bicol (Region V)
-                        </h2>{" "}
-                      </TableCell>
-                      <TableCell>
-                        <div className="bg-slate-200 transition-colors hover:bg-slate-300 text-xs  text-slate-900 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap rounded-full  w-full">
+                        <a href="#" className="line-clamp-1 text-blue-400 ">
+                          {item.email}
+                        </a>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <h2 className="text-slate-500 text-base line-clamp-1">
+                        {item.lgu}
+                      </h2>{" "}
+                      <h2 className="text-slate-500 text-base line-clamp-1">
+                        {item.region}
+                      </h2>{" "}
+                    </TableCell>
+                    <TableCell>
+                      <ViewPDF>
+                        <div className="bg-slate-100 transition-colors hover:bg-slate-200 text-xs  text-slate-900 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap rounded-full py-0.5 w-full">
                           {" "}
                           <Image src={pdf} alt="PDF Icon" />
                           View PDF <Eye size={10} className=" shrink-0" />
                         </div>
-                      </TableCell>
-                      <TableCell className="flex flex-col text-center space-y-1">
-                        <button
-                          onClick={() => setPage1Modal(true)}
-                          className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF]  rounded-full flex gap-1 items-center p-1"
-                        >
-                          <Eye size={15} />
+                      </ViewPDF>
+                    </TableCell>
+                    <TableCell className="flex flex-col text-center space-y-2">
+                      <Button
+                        size={"sm"}
+                        onClick={() => setPage1Modal(!page1Modal)}
+                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] text-xs text-[#1E40AF]  h-fit rounded-full w-min px-2 py-0.5"
+                      >
+                        <div className="flex gap-1">
+                          <Eye size={13} />
                           View Details
-                        </button>
-                        <Dialog open={page1Modal} onOpenChange={setPage1Modal}>
-                          <DialogTrigger asChild></DialogTrigger>
-                          <DialogContent className="w-full max-w-[887px]">
-                            <DialogHeader>
-                              <DialogTitle>
-                                {" "}
-                                <h2 className="font-bold text-lg uppercase text-blue-900 mb-6">
-                                  Details
-                                </h2>
-                              </DialogTitle>
-                              <DialogDescription></DialogDescription>
-                            </DialogHeader>
-                            <Details />
-                            <div className="flex items-end justify-end gap-4">
-                              <DialogClose>
-                                <Button variant={"outline"} type="submit">
-                                  <X size={15} /> Close
-                                </Button>
-                              </DialogClose>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                        {item.isApproved && (
-                          <Button
-                            /*                             onClick={() => setStatus("pending")}
-                             */ variant={"outline"}
-                            size={"sm"}
-                            className={`${
-                              quickScoreList.includes(index.toString())
-                                ? "bg-teal-500 hover:bg-teal-500 text-slate-50 hover:text-slate-50"
-                                : "bg-[#CCFBF1] hover:bg-[#b0f6e7] text-[#115E59] hover:text-[#115E59]"
-                            }     h-fit rounded-full w-min px-1.5 p-1`}
-                          >
-                            <div className="flex gap-1">
-                              <ClipboardCheckIcon size={15} />
-                              Verified
-                            </div>
-                          </Button>
-                        )}
-                        {!item.isApproved && (
-                          <Button
-                            /*                             onClick={() => setStatus("approved")}
-                             */ variant={"outline"}
-                            size={"sm"}
-                            className={`bg-orange-100 hover:bg-orange-200 text-orange-600 hover:text-orange-700
-                              h-fit rounded-full w-min px-1.5 p-1`}
-                          >
-                            <div className="flex gap-1">
-                              {" "}
-                              <MinusCircle size={15} />
-                              For Verification
-                            </div>
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  </React.Fragment>
-                )
-              );
+                        </div>
+                      </Button>
+
+                      {item.isApproved && (
+                        <div className="flex items-start">
+                          <CustomBadge
+                            color="emerald"
+                            message="Verified"
+                            icon={<Check size={13} />}
+                            className="rounded-full whitespace-nowrap font-medium bg-[#CCFBF1] text-[#115E59]  "
+                          />
+                        </div>
+                      )}
+
+                      {!item.isApproved && (
+                        <CustomBadge
+                          message="For Verification"
+                          className="rounded-full whitespace-nowrap font-medium bg-[#FFF1C2] text-[#BF6A02] "
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                </React.Fragment>
+              ));
             })()}
           </TableBody>
         </Table>
@@ -471,135 +447,103 @@ export default function Page() {
           </div>
         </div>
       </div>
+      <Dialog open={page1Modal} onOpenChange={setPage1Modal}>
+        <DialogContent className="w-full max-w-[528px]">
+          <DialogHeader>
+            <DialogTitle>
+              {" "}
+              <div className="font-bold text-lg uppercase text-blue-900 mb-6">
+                Details
+              </div>
+            </DialogTitle>
+            <DialogDescription></DialogDescription>
+          </DialogHeader>
+          <Details />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
 const Details = () => {
-  const aboutTheLguLabels = [
-    { label: "Contact Person", value: "contactPerson" },
-    { label: "LGU Name", value: "lgu_name" },
-    { label: "LGU Abbreviation", value: "lgu_abbr" },
-    { label: "Province", value: "lgu_province" },
-    { label: "Region", value: "lgu_region" },
-    { label: "Name of LCE", value: "lgu_lceName" },
-    { label: "Name of Office in LGU", value: "lgu_officeName" },
-    { label: "Contact Person", value: "lgu_contactPerson" },
-    { label: "Email", value: "lgu_contactPersonEmail" },
-    { label: "Mobile Number", value: "lgu_contactPersonMobileNo" },
-    { label: "Office Number", value: "lgu_contactPersonOfficeNo" },
-    { label: "Facebook Page", value: "lgu_facebook" },
-    { label: "Website", value: "lgu_website" },
-
-    {
-      label:
-        "Number of times in joining eGOV, Digital Cities Awards, Digital Governance Awards from 2012 to 2022",
-      value: "joinCount",
-    },
-  ];
-  const values = {
-    contactPerson: "juandelacruz@calabanga.com",
-    lgu_name: "012801000", // Example LGU ID (should match PSGC IDs)
-    lgu_abbr: "LGU Example",
-    lgu_province: "Ilocos Norte",
-    lgu_region: "Region I - Ilocos Region",
-    lgu_lceName: "Juan Dela Cruz",
-    lgu_officeName: "Municipal Information Office",
-    lgu_contactPerson: "Maria Santos",
-    lgu_contactPersonEmail: "info@lgu-example.gov.ph",
-    lgu_contactPersonMobileNo: "09171234567",
-    lgu_contactPersonOfficeNo: "(077) 123-4567",
-    lgu_facebook: "https://www.facebook.com/LGUExample",
-    lgu_website: "https://www.lgu-example.gov.ph",
-    joinCount: 3, // Number of times LGU joined eGOV awards
-
-    // Additional project-related fields (not in aboutTheLguLabels but kept for reference)
-    projectName: "Smart City Initiative",
-    projectCategory: "Digital Innovation",
-    projectPeriod: "January 2022 - December 2023",
-    projectURL: "https://www.smartcity-example.gov.ph",
-
-    // Example documents
-    documents: [
-      {
-        title: "Invoice #001",
-        date: "2025-03-05",
-        recipient: "John Doe",
-        items: [
-          {
-            description: "Web Development Services",
-            quantity: 1,
-            price: 500.0,
-          },
-          {
-            description: "Hosting (1 Year)",
-            quantity: 1,
-            price: 100.0,
-          },
-        ],
-        total: 600.0,
-      },
-      {
-        title: "Report - Q1 2025",
-        date: "2025-03-05",
-        author: "Jane Smith",
-        summary:
-          "This report summarizes the financial and operational performance for Q1 2025.",
-      },
-    ],
-  };
   return (
-    <>
-      <section>
-        <div className=" space-y-2 pt-6 lg:pt-0">
-          <div className="flex justify-between items-center">
-            {/*    <h2 className="font-bold text-lg text-blue-900">Details</h2> */}
-          </div>
-        </div>
-        <div className="grid text-base w-full grid-cols-2 md:grid-cols-[_40%,_60%] md:gap-2">
-          {aboutTheLguLabels.map((item, index) => {
-            /*  const region = PSGC.regions.find((region) =>
-              values.lgu.startsWith(region.id)
-            );
-            const province = PSGC.regions
-              .find((region) => values.lgu.startsWith(region.id))
-              ?.provinces.find((province) =>
-                values.lgu.startsWith(province.id)
-              );
-            const lgu = PSGC.regions
-              .find((region) => values.lgu.startsWith(region.id))
-              ?.provinces.find((province) => values.lgu.startsWith(province.id))
-              ?.lgus.find((lgu) => lgu.id === values.lgu); */
+    <div>
+      {/* Location */}
+      <h2 className="text-lg  text-gray-900">Calabanga, Camarines Sur</h2>
+      <p className="text-[16px] text-gray-600">Region V - Bicol</p>
 
-            return (
-              <React.Fragment key={index}>
-                {item.value === "contactPerson" ? (
-                  <div className="flex flex-col col-span-2 mb-2">
-                    {" "}
-                    <div className="flex justify-between">{item.label}</div>
-                    <div>
-                      <div className=" font-medium text-slate-500">
-                        {values[item.value]}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex justify-between">
-                      {item.label} <span className="mr-4">:</span>
-                    </div>
-                    <div>
-                      <div className=" font-medium text-slate-500">
-                        {/*  {values[item.value]} */}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </React.Fragment>
-            );
-          })}
+      {/* Representative */}
+      <div className="text-blue-500 font-medium text-[16px] mt-4 block">
+        Authorized Representative
+      </div>
+      <h3 className="text-lg font-medium text-gray-900 mt-1">Juan Dela Cruz</h3>
+      <p className="text-[16px] text-slate-700">juandelacruz@calabanga.com</p>
+      <p className="text-[16px] text-slate-700">+639876543210</p>
+
+      {/* Details */}
+      <div className="mt-8 text-[16px] text-slate-700 space-y-1">
+        <div className="flex">
+          <div className="text-slate-500 w-[200px]">Name of LCE</div>: Eugene S.
+          Severo
         </div>
-      </section>
-    </>
+        <div className="flex">
+          <div className="text-slate-500 w-[200px] mb-4">
+            Name of Office in LGU
+          </div>
+          : IT Department
+        </div>
+        <div className="flex">
+          <div className="text-slate-500 w-[200px]">Office Number</div>: (02)
+          123 456
+        </div>
+        <div className="flex">
+          <div className="text-slate-500 w-[200px]">Website</div>:
+          www.calabanga.com
+        </div>
+        <div className="flex">
+          <div className="text-slate-500 w-[200px] mb-4">Facebook Page</div>:
+          facebook.com/calabanga
+        </div>
+        <div className="flex">
+          <div className="text-slate-500 w-[200px]">Number of Times Joined</div>
+          : 2
+        </div>
+      </div>
+    </div>
+  );
+};
+interface IViewPDF {
+  children: React.ReactNode;
+}
+const ViewPDF = ({ children }: IViewPDF) => {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-bold text-blue-900">
+            AUTHORIZATION LETTER
+          </DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4"></div>
+        <DialogFooter className="">
+          <Button
+            variant={"outline"}
+            className="border-black font-semibold"
+            type="button"
+          >
+            <X />
+            Close
+          </Button>
+          <Button
+            type="button"
+            className="mb-2 hover:bg-[#0f9d8c] bg-[#14B8A6] font-semibold"
+          >
+            <Check />
+            Verify
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

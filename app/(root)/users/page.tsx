@@ -62,6 +62,7 @@ import { toast } from "@/hooks/use-toast";
 import { apiGet, apiPost, apiPut } from "@/utils/api";
 import { get } from "http";
 import { Switch } from "@/components/ui/switch";
+import Loaders from "@/components/loaders";
 
 export default function Page() {
   const [userlist, setUserList] = useState<any>([]);
@@ -313,7 +314,7 @@ const ManageUserModal = ({
         "This field is required",
         function (value) {
           const { role } = this.parent;
-          if (role === "judge") {
+          if (role === "67dbb942509373eb845a0e1d") {
             return value && value.length > 0;
           }
           return true;
@@ -321,11 +322,15 @@ const ManageUserModal = ({
       ),
   });
   const handleSubmit = async (values: any, resetForm: any) => {
+    let newValues = values;
     setIsLoading(true);
-
+    if (values?.role != "67dbb942509373eb845a0e1d") {
+      const { judgeCategory, ...cleanedValues } = values;
+      newValues = cleanedValues;
+    }
     try {
       if (action === "add") {
-        const res = await apiPost("/api/auth/create", values);
+        const res = await apiPost("/api/auth/create", newValues);
         const { success, message } = res;
         if (success) {
           resetForm();
@@ -404,7 +409,7 @@ const ManageUserModal = ({
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      {({ values, setFieldValue, resetForm, isValid, dirty, errors }) => {
+      {({ values, setFieldValue, resetForm, isValid, dirty }) => {
         return (
           <Form>
             <div className="flex justify-center gap-0.5 mx-auto">
@@ -653,24 +658,14 @@ const ManageUserModal = ({
                             disabled={!isValid || !dirty}
                             onClick={() => {
                               handleSubmit(values, resetForm);
-
-                              /*  toast({
-                                variant: "success",
-                                title: `User ${
-                                  action == "edit" ? "updated" : "created"
-                                }`,
-                                description: `The user has been successfully ${
-                                  action == "edit" ? "updated" : "created"
-                                }.`,
-                                duration: 2500,
-                              }); */
                             }}
                             className={`bg-[#1F2937] flex justify-center w-fit gap-2 text-sm font-semibold items-center transition-colors duration-300  hover:bg-slate-700 text-white p-2.5 px-4 rounded-md`}
                           >
                             {isLoading ? (
-                              <Loader2
-                                size={18}
-                                className=" animate-spin mx-6"
+                              <Loaders
+                                loader={"wobble"}
+                                color="white"
+                                size={30}
                               />
                             ) : (
                               <>

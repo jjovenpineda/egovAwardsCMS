@@ -40,6 +40,7 @@ import { Label } from "@/components/ui/label";
 import Loading from "@/components/shared/loading";
 import { storage } from "@/utils/useStorage";
 import FloatingIcons from "@/components/shared/floating-icons";
+import Loaders from "@/components/loaders";
 
 export default function SignInPage() {
   const [index, setIndex] = useState(0);
@@ -118,10 +119,10 @@ export default function SignInPage() {
     }
   };
   return (
-    <div className="overflow-hidden min-h-screen  -z-10 size-full ">
+    <div className="overflow-hidden min-h-screen -z-10 size-full flex items-center">
       {showLoading && <Loading />}
 
-      <div className="size-full overflow-hidden items-center justify-center">
+      <div className="size-full overflow-hidden ">
         <div className="size-full">
           <m.div
             initial={{ opacity: 0, y: 100 }}
@@ -302,7 +303,11 @@ export default function SignInPage() {
                               type="submit"
                             >
                               {isLoading ? (
-                                <Loader2 size={18} className=" animate-spin" />
+                                <Loaders
+                                  loader={"wobble"}
+                                  color="white"
+                                  size={30}
+                                />
                               ) : (
                                 <span>Login</span>
                               )}
@@ -376,9 +381,10 @@ export default function SignInPage() {
                                 className={`bg-[#1F2937] flex justify-center w-full gap-2 text-sm font-semibold items-center transition-colors duration-300  hover:bg-slate-700 text-white p-2.5 px-6 rounded-md`}
                               >
                                 {isLoading ? (
-                                  <Loader2
-                                    size={18}
-                                    className=" animate-spin"
+                                  <Loaders
+                                    loader={"wobble"}
+                                    color="white"
+                                    size={30}
                                   />
                                 ) : (
                                   <span>
