@@ -1,8 +1,7 @@
 "use client";
 
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import Link from "next/link";
 import {
   Popover,
   PopoverContent,
@@ -34,10 +33,8 @@ import { useSearchParams } from "next/navigation";
 import {
   Check,
   ChevronDown,
-  ClipboardCheckIcon,
   Download,
   Eye,
-  MinusCircle,
   RotateCcw,
   Sliders,
   X,
@@ -55,11 +52,109 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { apiGet } from "@/utils/api";
 import CustomBadge from "@/components/shared/custom-badge";
-
+const filterChecklist = [
+  {
+    title: "FILTER BY STATUS",
+    options: [
+      { id: "status-select-all", label: "Select All" },
+      { id: "status-review", label: "For Review" },
+      { id: "status-graded", label: "Graded" },
+    ],
+  },
+  {
+    title: "FILTER BY CATEGORY",
+    options: [
+      { id: "category-select-all", label: "Select All" },
+      { id: "category-g2a", label: "G2A" },
+      { id: "category-g2b", label: "G2B" },
+      { id: "category-g2c", label: "G2C" },
+      { id: "category-g2d", label: "G2D" },
+      { id: "category-g2e", label: "G2E" },
+    ],
+  },
+  {
+    title: "FILTER BY SDGs",
+    options: [
+      { id: "sdg-select-all", label: "Select All" },
+      { id: "sdg-no-poverty", label: "No Poverty" },
+      { id: "sdg-zero-hunger", label: "Zero Hunger" },
+      {
+        id: "sdg-good-health",
+        label: "Good Health and Well-being",
+      },
+      {
+        id: "sdg-quality-education",
+        label: "Quality Education",
+      },
+      { id: "sdg-gender-equality", label: "Gender Equality" },
+      {
+        id: "sdg-clean-water",
+        label: "Clean Water and Sanitation",
+      },
+      {
+        id: "sdg-affordable-energy",
+        label: "Affordable and Clean Energy",
+      },
+      {
+        id: "sdg-decent-work",
+        label: "Decent Work and Economic Growth",
+      },
+      {
+        id: "sdg-industry",
+        label: "Industry, Innovation, and Infrastructure",
+      },
+      {
+        id: "sdg-reduced-inequalities",
+        label: "Reduced Inequalities",
+      },
+      {
+        id: "sdg-sustainable-cities",
+        label: "Sustainable Cities and Communities",
+      },
+      {
+        id: "sdg-responsible-consumption",
+        label: "Responsible Consumption and Production",
+      },
+      { id: "sdg-climate-action", label: "Climate Action" },
+      {
+        id: "sdg-life-below-water",
+        label: "Life Below Water",
+      },
+      { id: "sdg-life-on-land", label: "Life on Land" },
+      {
+        id: "sdg-peace-justice",
+        label: "Peace, Justice, and Strong Institutions",
+      },
+      {
+        id: "sdg-partnerships",
+        label: "Partnerships for the Goals",
+      },
+    ],
+  },
+  {
+    title: "FILTER BY REGIONS",
+    options: [
+      { id: "region-select-all", label: "Select All" },
+      { id: "region-ncr", label: "NCR" },
+      { id: "region-car", label: "CAR" },
+      { id: "region-1", label: "Region 1" },
+      { id: "region-3", label: "Region 3" },
+      { id: "region-4a", label: "Region 4A" },
+      { id: "region-4b", label: "Region 4B" },
+      { id: "region-5", label: "Region 5" },
+      { id: "region-6", label: "Region 6" },
+      { id: "region-8", label: "Region 8" },
+      { id: "region-9", label: "Region 9" },
+      { id: "region-11", label: "Region 11" },
+      { id: "region-12", label: "Region 12" },
+      { id: "region-13", label: "Region 13" },
+      { id: "region-barmm", label: "BARMM" },
+    ],
+  },
+];
 export default function Page() {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get("filter");
-  const [page1Modal, setPage1Modal] = useState(false);
   const [registrationsList, setRegistrationsList] = useState<any>([]);
   const getRegistrationsList = async () => {
     try {
@@ -74,106 +169,7 @@ export default function Page() {
   useEffect(() => {
     getRegistrationsList();
   }, []);
-  const filterChecklist = [
-    {
-      title: "FILTER BY STATUS",
-      options: [
-        { id: "status-select-all", label: "Select All" },
-        { id: "status-review", label: "For Review" },
-        { id: "status-graded", label: "Graded" },
-      ],
-    },
-    {
-      title: "FILTER BY CATEGORY",
-      options: [
-        { id: "category-select-all", label: "Select All" },
-        { id: "category-g2a", label: "G2A" },
-        { id: "category-g2b", label: "G2B" },
-        { id: "category-g2c", label: "G2C" },
-        { id: "category-g2d", label: "G2D" },
-        { id: "category-g2e", label: "G2E" },
-      ],
-    },
-    {
-      title: "FILTER BY SDGs",
-      options: [
-        { id: "sdg-select-all", label: "Select All" },
-        { id: "sdg-no-poverty", label: "No Poverty" },
-        { id: "sdg-zero-hunger", label: "Zero Hunger" },
-        {
-          id: "sdg-good-health",
-          label: "Good Health and Well-being",
-        },
-        {
-          id: "sdg-quality-education",
-          label: "Quality Education",
-        },
-        { id: "sdg-gender-equality", label: "Gender Equality" },
-        {
-          id: "sdg-clean-water",
-          label: "Clean Water and Sanitation",
-        },
-        {
-          id: "sdg-affordable-energy",
-          label: "Affordable and Clean Energy",
-        },
-        {
-          id: "sdg-decent-work",
-          label: "Decent Work and Economic Growth",
-        },
-        {
-          id: "sdg-industry",
-          label: "Industry, Innovation, and Infrastructure",
-        },
-        {
-          id: "sdg-reduced-inequalities",
-          label: "Reduced Inequalities",
-        },
-        {
-          id: "sdg-sustainable-cities",
-          label: "Sustainable Cities and Communities",
-        },
-        {
-          id: "sdg-responsible-consumption",
-          label: "Responsible Consumption and Production",
-        },
-        { id: "sdg-climate-action", label: "Climate Action" },
-        {
-          id: "sdg-life-below-water",
-          label: "Life Below Water",
-        },
-        { id: "sdg-life-on-land", label: "Life on Land" },
-        {
-          id: "sdg-peace-justice",
-          label: "Peace, Justice, and Strong Institutions",
-        },
-        {
-          id: "sdg-partnerships",
-          label: "Partnerships for the Goals",
-        },
-      ],
-    },
-    {
-      title: "FILTER BY REGIONS",
-      options: [
-        { id: "region-select-all", label: "Select All" },
-        { id: "region-ncr", label: "NCR" },
-        { id: "region-car", label: "CAR" },
-        { id: "region-1", label: "Region 1" },
-        { id: "region-3", label: "Region 3" },
-        { id: "region-4a", label: "Region 4A" },
-        { id: "region-4b", label: "Region 4B" },
-        { id: "region-5", label: "Region 5" },
-        { id: "region-6", label: "Region 6" },
-        { id: "region-8", label: "Region 8" },
-        { id: "region-9", label: "Region 9" },
-        { id: "region-11", label: "Region 11" },
-        { id: "region-12", label: "Region 12" },
-        { id: "region-13", label: "Region 13" },
-        { id: "region-barmm", label: "BARMM" },
-      ],
-    },
-  ];
+
   const validationSchema = Yup.object().shape({
     impact: Yup.number()
       .typeError("Must be a number")
@@ -372,14 +368,18 @@ export default function Page() {
                     </TableCell>
                     <TableCell>
                       <h2 className="text-slate-500 text-base line-clamp-1">
-                        {item.lgu}
+                        {item.lgu + " " + item.province}
                       </h2>{" "}
                       <h2 className="text-slate-500 text-base line-clamp-1">
                         {item.region}
                       </h2>{" "}
                     </TableCell>
                     <TableCell>
-                      <ViewPDF>
+                      <ViewPDF
+                        url={item.authLetter}
+                        email={item.email}
+                        status={item.isApproved}
+                      >
                         <div className="bg-slate-100 transition-colors hover:bg-slate-200 text-xs  text-slate-900 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap rounded-full py-0.5 w-full">
                           {" "}
                           <Image src={pdf} alt="PDF Icon" />
@@ -388,24 +388,101 @@ export default function Page() {
                       </ViewPDF>
                     </TableCell>
                     <TableCell className="flex flex-col text-center space-y-2">
-                      <Button
-                        size={"sm"}
-                        onClick={() => setPage1Modal(!page1Modal)}
-                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] text-xs text-[#1E40AF]  h-fit rounded-full w-min px-2 py-0.5"
-                      >
-                        <div className="flex gap-1">
-                          <Eye size={13} />
-                          View Details
-                        </div>
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger>
+                          <Button
+                            size={"sm"}
+                            className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] text-xs text-[#1E40AF]  h-fit rounded-full w-min px-2 py-0.5"
+                          >
+                            <div className="flex gap-1">
+                              <Eye size={13} />
+                              View Details
+                            </div>
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="w-full max-w-[528px]">
+                          <DialogHeader>
+                            <DialogTitle>
+                              {" "}
+                              <div className="font-bold text-lg uppercase text-blue-900 mb-6">
+                                Details
+                              </div>
+                            </DialogTitle>
+                            <DialogDescription></DialogDescription>
+                          </DialogHeader>
+                          <div>
+                            <h2 className="text-lg  text-gray-900">
+                              {item?.lgu + " " + item?.province}
+                            </h2>
+                            <p className="text-[16px] text-gray-600">
+                              {item?.region}
+                            </p>
 
+                            <div className="text-blue-500 font-medium text-[16px] mt-4 block">
+                              Authorized Representative
+                            </div>
+                            <h3 className="text-lg font-medium text-gray-900 mt-1">
+                              {item?.firstname +
+                                " " +
+                                item?.middlename +
+                                " " +
+                                item?.lastname}
+                            </h3>
+                            <p className="text-[16px] text-slate-700">
+                              {item?.email}
+                            </p>
+                            <p className="text-[16px] text-slate-700">
+                              {`+63${item?.mobile}`}
+                            </p>
+
+                            <div className="mt-8 text-[16px] text-slate-700 space-y-1">
+                              <div className="flex">
+                                <div className="text-slate-500 w-[200px]">
+                                  Name of LCE
+                                </div>
+                                : {item?.lceName}
+                              </div>
+                              <div className="flex">
+                                <div className="text-slate-500 w-[200px] mb-4">
+                                  Name of Office in LGU
+                                </div>
+                                : {item?.officeName}
+                              </div>
+                              <div className="flex">
+                                <div className="text-slate-500 w-[200px]">
+                                  Office Number
+                                </div>
+                                : {item?.officeNo}
+                              </div>
+                              <div className="flex">
+                                <div className="text-slate-500 w-[200px]">
+                                  Website
+                                </div>
+                                : {item?.website}
+                              </div>
+                              <div className="flex">
+                                <div className="text-slate-500 w-[200px] mb-4">
+                                  Facebook Page
+                                </div>
+                                : {item?.facebook}
+                              </div>
+                              <div className="flex">
+                                <div className="text-slate-500 w-[200px]">
+                                  Number of Times Joined
+                                </div>
+                                : {item?.joinCount}
+                              </div>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                       {item.isApproved && (
                         <div className="flex items-start">
                           <CustomBadge
                             color="emerald"
                             message="Verified"
                             icon={<Check size={13} />}
-                            className="rounded-full whitespace-nowrap font-medium bg-[#CCFBF1] text-[#115E59]  "
+                            className="rounded-full h-[20px] whitespace-nowrap font-medium bg-[#CCFBF1] text-[#115E59]  "
                           />
                         </div>
                       )}
@@ -413,7 +490,7 @@ export default function Page() {
                       {!item.isApproved && (
                         <CustomBadge
                           message="For Verification"
-                          className="rounded-full whitespace-nowrap font-medium bg-[#FFF1C2] text-[#BF6A02] "
+                          className="rounded-full h-[20px] whitespace-nowrap font-medium bg-[#FFF1C2] text-[#BF6A02] "
                         />
                       )}
                     </TableCell>
@@ -447,101 +524,75 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <Dialog open={page1Modal} onOpenChange={setPage1Modal}>
-        <DialogContent className="w-full max-w-[528px]">
-          <DialogHeader>
-            <DialogTitle>
-              {" "}
-              <div className="font-bold text-lg uppercase text-blue-900 mb-6">
-                Details
-              </div>
-            </DialogTitle>
-            <DialogDescription></DialogDescription>
-          </DialogHeader>
-          <Details />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
 
-const Details = () => {
-  return (
-    <div>
-      {/* Location */}
-      <h2 className="text-lg  text-gray-900">Calabanga, Camarines Sur</h2>
-      <p className="text-[16px] text-gray-600">Region V - Bicol</p>
-
-      {/* Representative */}
-      <div className="text-blue-500 font-medium text-[16px] mt-4 block">
-        Authorized Representative
-      </div>
-      <h3 className="text-lg font-medium text-gray-900 mt-1">Juan Dela Cruz</h3>
-      <p className="text-[16px] text-slate-700">juandelacruz@calabanga.com</p>
-      <p className="text-[16px] text-slate-700">+639876543210</p>
-
-      {/* Details */}
-      <div className="mt-8 text-[16px] text-slate-700 space-y-1">
-        <div className="flex">
-          <div className="text-slate-500 w-[200px]">Name of LCE</div>: Eugene S.
-          Severo
-        </div>
-        <div className="flex">
-          <div className="text-slate-500 w-[200px] mb-4">
-            Name of Office in LGU
-          </div>
-          : IT Department
-        </div>
-        <div className="flex">
-          <div className="text-slate-500 w-[200px]">Office Number</div>: (02)
-          123 456
-        </div>
-        <div className="flex">
-          <div className="text-slate-500 w-[200px]">Website</div>:
-          www.calabanga.com
-        </div>
-        <div className="flex">
-          <div className="text-slate-500 w-[200px] mb-4">Facebook Page</div>:
-          facebook.com/calabanga
-        </div>
-        <div className="flex">
-          <div className="text-slate-500 w-[200px]">Number of Times Joined</div>
-          : 2
-        </div>
-      </div>
-    </div>
-  );
-};
 interface IViewPDF {
   children: React.ReactNode;
+  url: string;
+  email: string;
+  status: string;
 }
-const ViewPDF = ({ children }: IViewPDF) => {
+const ViewPDF = ({ children, url, email, status }: IViewPDF) => {
+  const handleApprove = async () => {
+    try {
+      const res = await apiGet(`/api/lgu/change/approvedState?email=${email}`);
+      /*  const { data } = res;
+      if (!data) return;
+      setEntriesList(data); */
+    } catch (e) {
+      console.error("Error fetching participants list:", e);
+    }
+  };
+
+  /*  const getEntryList = async () => {
+      
+    };
+    */
+
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="h-[100vh] sm:h-[90vh] overflow-auto ">
+        {" "}
         <DialogHeader>
           <DialogTitle className="text-lg font-bold text-blue-900">
             AUTHORIZATION LETTER
           </DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4"></div>
+        <div className="h-[80vh] sm:h-[70vh] ">
+          <iframe src={url} className="size-full" />
+        </div>
         <DialogFooter className="">
-          <Button
-            variant={"outline"}
-            className="border-black font-semibold"
-            type="button"
-          >
-            <X />
-            Close
-          </Button>
-          <Button
-            type="button"
-            className="mb-2 hover:bg-[#0f9d8c] bg-[#14B8A6] font-semibold"
-          >
-            <Check />
-            Verify
-          </Button>
+          <>
+            <DialogClose asChild className="">
+              <Button
+                variant={"outline"}
+                className="border-black font-semibold"
+                type="button"
+              >
+                <X />
+                Close
+              </Button>
+            </DialogClose>
+
+            {!status ? (
+              <Button
+                type="button"
+                onClick={handleApprove}
+                className="mb-2 hover:bg-[#0f9d8c] bg-[#14B8A6] font-semibold"
+              >
+                <Check />
+                Verify
+              </Button>
+            ) : (
+              <div className="mb-2 h-[37px] flex items-center gap-2 text-sm px-3 rounded-md font-semibold text-[#14B8A6] bg-[#CCFBF1] ">
+                <Check />
+                Verified
+              </div>
+            )}
+          </>
         </DialogFooter>
       </DialogContent>
     </Dialog>

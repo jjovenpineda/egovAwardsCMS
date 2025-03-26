@@ -1,39 +1,18 @@
 "use client";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
-import {
-  Eye,
-  EyeOffIcon,
-  Loader2,
-  LogIn,
-  Mail,
-  Lock,
-  Send,
-  SendIcon,
-  SendHorizontal,
-} from "lucide-react";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Eye, EyeOffIcon, Mail, SendHorizontal } from "lucide-react";
 import * as Yup from "yup";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, m } from "motion/react";
-import { decrypt, encrypt, setCookie } from "@/utils/utility";
-import { apiGet, apiPost, apiPut } from "@/utils/api";
+import { encrypt } from "@/utils/utility";
+import { apiGet, apiPost } from "@/utils/api";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
-import carousel from "@/public/assets/images/carousel1.webp";
-import login from "@/public/assets/images/login.webp";
-import egov from "@/public/assets/images/egov.svg";
-
-import lgus from "@/public/assets/images/lgus.webp";
 
 import dict from "@/public/assets/images/dict2.webp";
 import { Label } from "@/components/ui/label";
@@ -84,14 +63,22 @@ export default function SignInPage() {
               router.push("/");
             }, 2500);
           }, 2000);
+        } else {
+          toast({
+            title: "Login failed",
+            variant: "destructive",
+            description: "Invalid email or password",
+            duration: 2000,
+          });
+          setIsLoading(false);
         }
       } catch (e) {
         console.error("Error:", e);
         setIsLoading(false);
         toast({
-          title: "Login failed",
+          title: "Something went wrong",
+          description: "Please try again later.",
           variant: "destructive",
-          description: "Invalid email or password",
           duration: 2000,
         });
       }
