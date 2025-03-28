@@ -3,6 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as Yup from "yup";
 import Link from "next/link";
+import dayjs from "dayjs";
+
 import {
   Popover,
   PopoverContent,
@@ -45,9 +47,7 @@ import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -57,19 +57,18 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Field, Form, Formik } from "formik";
 import { entriesFilterOptions } from "@/constants";
-import { apiGet } from "@/utils/api";
 import { DownloadEntries } from "@/components/downloadEntries";
 import Loaders from "@/components/loaders";
+import { apiGet } from "@/utils/api";
 export default function Entries() {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get("filter");
-  const [entriesList, setEntriesList] = useState<any>([]);
   const downloadRef = useRef<HTMLButtonElement>(null);
-
+  const [entriesList, setEntriesList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  /*  const getEntryList = async () => {
+  const getEntryList = async () => {
     try {
-      const res = await apiGet("/api/lgu/participants/list");
+      const res = await apiGet("/api/entry/view");
       const { data } = res;
       if (!data) return;
       setEntriesList(data);
@@ -79,7 +78,7 @@ export default function Entries() {
   };
   useEffect(() => {
     getEntryList();
-  }, []); */
+  }, []);
 
   const validationSchema = Yup.object().shape({
     impact: Yup.number()
@@ -211,15 +210,14 @@ export default function Entries() {
           <TableHeader>
             <TableRow>
               {(() => {
-                const tableHeader = [
+                return [
                   "Application",
                   "LGU",
                   "Project Name",
                   "Category",
                   "Ranking",
                   "Action",
-                ];
-                return tableHeader.map((th, index) => (
+                ].map((th, index) => (
                   <TableHead
                     key={index}
                     className={` font-medium ${
@@ -256,24 +254,8 @@ export default function Entries() {
                     : [...prev, number.toString()]
                 );
               };
-              const data = [
-                {
-                  invoice: "INV004",
-                  paymentStatus: "Paid",
-                  totalAmount: "$450.00",
-                  paymentMethod: "Credit Card",
-                  ranking: 1,
-                },
-                {
-                  invoice: "INV005",
-                  paymentStatus: "Paid",
-                  totalAmount: "$450.00",
-                  paymentMethod: "Credit Card",
-                  ranking: 2,
-                },
-              ];
 
-              return data.map((item, index) => (
+              return entriesList.map((item: any, index) => (
                 <React.Fragment key={index}>
                   <TableRow
                     key={index}
@@ -282,7 +264,9 @@ export default function Entries() {
                     <TableCell className="font-medium">
                       <div className="">
                         <div className="font-semibold flex gap-1 ">
-                          <h2 className="text-slate-900 text-base">25G2BCAL</h2>
+                          <h2 className="text-slate-900 text-base">
+                            {item.refNo}
+                          </h2>
                           <div className="flex  font-bold gap-0.5 items-center text-emerald-800">
                             <ClipboardCheckIcon size={12} />
                             <h3 className="text-xs">92.10</h3>
@@ -292,7 +276,8 @@ export default function Entries() {
                           {filterParams === "final" && (
                             <Lock size={12} className="" />
                           )}
-                          GRADED | 01/26/2025
+                          {item.status} |{" "}
+                          {dayjs(item.createdAt).format("MM/DD/YYYY")}
                         </h3>
                       </div>
                     </TableCell>
@@ -352,7 +337,7 @@ export default function Entries() {
                           query: { filter: "all", id: index },
                         }}
                         draggable={false}
-                        className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF] px-1.5 rounded-full flex gap-1 items-center p-1"
+                        className="bg-[#DBEAFE] h-[24px] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF] px-1.5 rounded-full flex gap-1 items-center p-1"
                       >
                         <Eye size={15} />
                         View Details
@@ -365,7 +350,7 @@ export default function Entries() {
                           quickScoreList.includes(index.toString())
                             ? "bg-teal-500 hover:bg-teal-500 text-slate-50 hover:text-slate-50"
                             : "bg-[#CCFBF1] hover:bg-[#b0f6e7] text-[#115E59] hover:text-[#115E59]"
-                        }     h-fit rounded-full w-min px-1.5 p-1`}
+                        }      h-[24px] rounded-full w-min px-1.5 p-1`}
                       >
                         <div className="flex gap-1">
                           <ClipboardCheckIcon size={15} />
@@ -381,7 +366,7 @@ export default function Entries() {
                             downloadRef.current.click();
                           }
                         }}
-                        className="bg-[#F3F4F6] hover:bg-[#e3e3e3] text-[#1F2937] h-fit p-1 px-1.5 rounded-full w-min "
+                        className="bg-[#F3F4F6]  h-[24px] hover:bg-[#e3e3e3] text-[#1F2937] p-1 px-1.5 rounded-full w-min "
                       >
                         <div className="flex gap-1">
                           {isLoading ? (

@@ -781,7 +781,7 @@ export const DownloadEntries = forwardRef<
           <div className="flex gap-1">
             {isLoading ? (
               <div className="px-6 h-4">
-                <Loaders loader={"orbit"} size={25} />
+                <Loaders loader={"orbit"} color="gray" size={25} />
               </div>
             ) : (
               <>

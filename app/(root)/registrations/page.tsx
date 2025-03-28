@@ -52,6 +52,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { apiGet } from "@/utils/api";
 import CustomBadge from "@/components/shared/custom-badge";
+import { toast } from "@/hooks/use-toast";
+import Loaders from "@/components/loaders";
 const filterChecklist = [
   {
     title: "FILTER BY STATUS",
@@ -379,6 +381,7 @@ export default function Page() {
                         url={item.authLetter}
                         email={item.email}
                         status={item.isApproved}
+                        fetchData={getRegistrationsList}
                       >
                         <div className="bg-slate-100 transition-colors hover:bg-slate-200 text-xs  text-slate-900 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap rounded-full py-0.5 w-full">
                           {" "}
@@ -533,23 +536,34 @@ interface IViewPDF {
   url: string;
   email: string;
   status: string;
+  fetchData: () => void;
 }
-const ViewPDF = ({ children, url, email, status }: IViewPDF) => {
+const ViewPDF = ({ children, url, email, status, fetchData }: IViewPDF) => {
+  const [isLoading, setIsLoading] = useState(false);
   const handleApprove = async () => {
+    setIsLoading(true);
     try {
       const res = await apiGet(`/api/lgu/change/approvedState?email=${email}`);
-      /*  const { data } = res;
+      const { data } = res;
       if (!data) return;
-      setEntriesList(data); */
+      if (data.isApproved) {
+        fetchData();
+        setIsLoading(false);
+      } else {
+        setIsLoading(false);
+
+        toast({
+          title: "Something went wrong",
+          description: "Please try again later.",
+          variant: "destructive",
+          duration: 2000,
+        });
+      }
     } catch (e) {
+      setIsLoading(false);
       console.error("Error fetching participants list:", e);
     }
   };
-
-  /*  const getEntryList = async () => {
-      
-    };
-    */
 
   return (
     <Dialog>
@@ -577,21 +591,33 @@ const ViewPDF = ({ children, url, email, status }: IViewPDF) => {
               </Button>
             </DialogClose>
 
-            {!status ? (
-              <Button
-                type="button"
-                onClick={handleApprove}
-                className="mb-2 hover:bg-[#0f9d8c] bg-[#14B8A6] font-semibold"
-              >
-                <Check />
-                Verify
-              </Button>
-            ) : (
-              <div className="mb-2 h-[37px] flex items-center gap-2 text-sm px-3 rounded-md font-semibold text-[#14B8A6] bg-[#CCFBF1] ">
-                <Check />
-                Verified
-              </div>
-            )}
+            <>
+              {" "}
+              {!status ? (
+                <Button
+                  type="button"
+                  onClick={handleApprove}
+                  className="mb-2 hover:bg-[#0f9d8c] bg-[#14B8A6] font-semibold"
+                >
+                  {isLoading ? (
+                    <div className="px-5">
+                      <Loaders loader={"orbit"} size={25} color="white" />
+                    </div>
+                  ) : (
+                    <>
+                      {" "}
+                      <Check />
+                      Verify
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <div className="mb-2 h-[37px] flex items-center justify-center gap-2 text-sm px-3 rounded-md font-semibold text-[#14B8A6] bg-[#CCFBF1] ">
+                  <Check />
+                  Verified
+                </div>
+              )}
+            </>
           </>
         </DialogFooter>
       </DialogContent>

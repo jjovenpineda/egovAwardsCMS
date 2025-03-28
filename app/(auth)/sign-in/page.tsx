@@ -2,7 +2,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { Eye, EyeOffIcon, Mail, SendHorizontal } from "lucide-react";
 import * as Yup from "yup";
@@ -15,26 +14,19 @@ import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
 
 import dict from "@/public/assets/images/dict2.webp";
-import { Label } from "@/components/ui/label";
 import Loading from "@/components/shared/loading";
 import { storage } from "@/utils/useStorage";
-import FloatingIcons from "@/components/shared/floating-icons";
 import Loaders from "@/components/loaders";
 
 export default function SignInPage() {
-  const [index, setIndex] = useState(0);
-  const [isScrolling, setIsScrolling] = useState(false);
-
   const { setItem } = storage;
   const router = useRouter();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isPasswordVisible2, setIsPasswordVisible2] = useState(false);
   const [timer, setTimer] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showLoading, setShowLoading] = useState(false);
-  const [linkSent, setLinkSent] = useState(false);
   const [action, setAction] = useState("login");
   const togglePasswordVisibility = () => {
     setIsPasswordVisible((prevState) => !prevState);
@@ -63,6 +55,13 @@ export default function SignInPage() {
               router.push("/");
             }, 2500);
           }, 2000);
+        } else if (message.includes("not authorized to login")) {
+          toast({
+            title: "Access Denied",
+            variant: "destructive",
+            description: "Your role does not have permission to log in.",
+            duration: 2000,
+          });
         } else {
           toast({
             title: "Login failed",
