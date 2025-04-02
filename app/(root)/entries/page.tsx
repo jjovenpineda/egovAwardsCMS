@@ -64,21 +64,39 @@ export default function Entries() {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get("filter");
   const downloadRef = useRef<HTMLButtonElement>(null);
-  const [entriesList, setEntriesList] = useState([]);
+  const [entriesList, setEntriesList] = useState<any>();
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const getEntryList = async () => {
     try {
-      const res = await apiGet("/api/entry/view");
+      const res = await apiGet(
+        `/api/entry/view?page=${page}&limit=${limit}&order=desc`
+      );
       const { data } = res;
       if (!data) return;
       setEntriesList(data);
+      /*       getEntryById();
+       */
+    } catch (e) {
+      console.error("Error fetching participants list:", e);
+    }
+  };
+  const getEntryById = async () => {
+    try {
+      const res = await apiGet(`/api/entry/view/67ea4f09abcf25baacf3833d`);
+      const { data } = res;
+      if (!data) return;
+      console.log("data :", data);
+      /*       setEntriesList(data);
+       */
     } catch (e) {
       console.error("Error fetching participants list:", e);
     }
   };
   useEffect(() => {
     getEntryList();
-  }, []);
+  }, [page]);
 
   const validationSchema = Yup.object().shape({
     impact: Yup.number()
@@ -210,6 +228,17 @@ export default function Entries() {
           <TableHeader>
             <TableRow>
               {(() => {
+                const headers = [
+                  "Application",
+                  "LGU",
+                  "Project Name",
+                  "Category",
+                  "Ranking",
+                  "Action",
+                ];
+                const filteredHeaders = headers.filter(
+                  (header) => header != "Ranking"
+                ); // hide ranking header for other filtered view
                 return [
                   "Application",
                   "LGU",
@@ -255,7 +284,7 @@ export default function Entries() {
                 );
               };
 
-              return entriesList.map((item: any, index) => (
+              return entriesList?.entries.map((item: any, index: any) => (
                 <React.Fragment key={index}>
                   <TableRow
                     key={index}
@@ -267,17 +296,25 @@ export default function Entries() {
                           <h2 className="text-slate-900 text-base">
                             {item.refNo}
                           </h2>
-                          <div className="flex  font-bold gap-0.5 items-center text-emerald-800">
-                            <ClipboardCheckIcon size={12} />
-                            <h3 className="text-xs">92.10</h3>
-                          </div>
+                          {item.status != "For Review" && (
+                            <div className="flex  font-bold gap-0.5 items-center text-emerald-800">
+                              <ClipboardCheckIcon size={12} />
+                              <h3 className="text-xs">92.10</h3>
+                            </div>
+                          )}
                         </div>
-                        <h3 className="text-emerald-500 font-bold flex gap-1 items-center whitespace-nowrap">
+                        <h3
+                          className={`${
+                            item.status == "For Review"
+                              ? "text-orange-400"
+                              : "text-emerald-500"
+                          } font-bold flex gap-1 items-center whitespace-nowrap`}
+                        >
                           {filterParams === "final" && (
                             <Lock size={12} className="" />
                           )}
                           {item.status} |{" "}
-                          {dayjs(item.createdAt).format("MM/DD/YYYY")}
+                          {dayjs(item.createdAt).format("MM/DD/YY")}
                         </h3>
                       </div>
                     </TableCell>
@@ -294,14 +331,10 @@ export default function Entries() {
                     <TableCell>
                       <div className="text-base">
                         <h2 className="text-slate-900 line-clamp-2">
-                          Lorem ipsum dolor sit amet, consectetur adipisicing
-                          elit. Nulla libero voluptatem ducimus. Deleniti
-                          veritatis qui temporibus alias numquam consectetur hic
-                          quasi eius impedit, assumenda itaque vel officia
-                          molestiae modi nemo.
+                          {item.project}
                         </h2>{" "}
                         <a href="#" className="line-clamp-1 text-blue-400 ">
-                          www.govlinksolutions.com lorem
+                          {item.projectURL}
                         </a>
                       </div>
                     </TableCell>
@@ -311,7 +344,7 @@ export default function Entries() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <h2 className="font-medium text-base text-slate-900 cursor-pointer ">
-                                G2B
+                                {item.category}
                               </h2>
                             </TooltipTrigger>
                             <TooltipContent side="left">
@@ -321,7 +354,7 @@ export default function Entries() {
                         </TooltipProvider>
 
                         <div className="bg-slate-100 text-[10px]  mx-auto px-2 w-fit rounded-full">
-                          5 SDGs
+                          {item.alignmentSDG.target.length} SDGs
                         </div>
                       </div>
                     </TableCell>
@@ -505,16 +538,58 @@ export default function Entries() {
         <Pagination className="text-slate-500">
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href="#" />
+              <PaginationPrevious
+                onClick={() => {
+                  setPage(page - 1);
+                }}
+                className={`hover:cursor-pointer hover:bg-slate-200 rounded-md mr-2 active:bg-slate-300 ${
+                  page === 1
+                    ? "opacity-50 cursor-not-allowed pointer-events-none"
+                    : ""
+                }`}
+              />
             </PaginationItem>
+
+            {page > 3 && entriesList?.pages > 5 && (
+              <PaginationItem>
+                <PaginationEllipsis className="hover:bg-slate-200 p-1 rounded-md" />
+              </PaginationItem>
+            )}
+
+            {/* Middle Pages */}
+            {Array.from({ length: entriesList?.pages }, (_, i) => i + 1)
+              .filter((item) => item >= page - 1 && item <= page + 1) // Show only nearby pages
+              .map((item) => (
+                <PaginationItem key={item}>
+                  <PaginationLink
+                    className={`hover:cursor-pointer hover:bg-slate-200 rounded-md  active:bg-slate-300 ${
+                      page === item ? "bg-slate-200" : ""
+                    }`}
+                    onClick={() => setPage(item)}
+                  >
+                    {item}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+            {/* Show Ellipsis if More Pages Exist After Current Page */}
+            {page < entriesList?.pages - 2 && entriesList?.pages > 5 && (
+              <PaginationItem>
+                <PaginationEllipsis className="hover:bg-slate-200 p-1 rounded-md" />
+              </PaginationItem>
+            )}
+
             <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
+              <PaginationNext
+                onClick={() => {
+                  setPage(page + 1);
+                }}
+                className={`hover:cursor-pointer hover:bg-slate-200 rounded-md mr-2 active:bg-slate-300 ${
+                  entriesList?.pages == page
+                    ? "opacity-50 cursor-not-allowed pointer-events-none"
+                    : ""
+                }`}
+              />
             </PaginationItem>
           </PaginationContent>
         </Pagination>

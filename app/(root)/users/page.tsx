@@ -8,17 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Edit,
-  Loader2,
-  Plus,
-  RotateCcw,
-  Save,
-  Search,
-  Sliders,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Edit, Plus, Save, Search, Trash2, X } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -28,11 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import React, { ReactNode, useEffect, useState } from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 import {
   Table,
   TableBody,
@@ -53,22 +39,24 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import CustomBadge from "@/components/shared/custom-badge";
 import { toast } from "@/hooks/use-toast";
 import { apiGet, apiPost, apiPut } from "@/utils/api";
-import { get } from "http";
 import { Switch } from "@/components/ui/switch";
 import Loaders from "@/components/loaders";
+import Filter from "@/components/shared/filter";
 
 export default function Page() {
+  const [selectedFilter, setSelectedFilter] = useState<string[]>([]);
   const [userlist, setUserList] = useState<any>([]);
   const getUserList = async () => {
     try {
-      const res = await apiGet("/api/auth/users/list");
+      const res = await apiGet(
+        `/api/auth/users/list?page=1&limit=50&order=desc`
+      );
       const { data } = res;
       if (!data) return;
       setUserList(data);
@@ -101,65 +89,24 @@ export default function Page() {
             />
           </div>
           <div>
-            <Label className="font-semibold text-xs text-slate-500">
-              Filter by Role
-            </Label>
-            <div className="flex gap-4 items-center">
-              <Popover>
-                <PopoverTrigger className="text-slate-900 h-[46px] border group text-sm  flex items-center gap-2 bg-white p-2 px-3 rounded-lg">
-                  <Sliders size={15} className="text-slate-500" />
-                  {}
-                  <div className="flex gap-1 items-center border p-2 rounded-full text-xs font-medium text-[#6B7280]">
-                    test{" "}
-                    <div className="flex items-center justify-center bg-[#E5E7EB] hover:bg-slate-300 transition-color duration-200 rounded-full size-3.5 ">
-                      <X size={10} className=" text-black" />
-                    </div>
-                  </div>
-                  <div className="flex gap-1 items-center border p-2 rounded-full text-xs font-medium text-[#6B7280]">
-                    test{" "}
-                    <div className="flex items-center justify-center bg-[#E5E7EB] hover:bg-slate-300 transition-color duration-200 rounded-full size-3.5 ">
-                      <X size={10} className=" text-black" />
-                    </div>
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="start"
-                  className="grid grid-cols-2 max-h-[60vh] "
-                >
-                  {(() => {
-                    const usersRoles = ["Super Admin", "Admin", "Applicant"];
-                    return (
-                      <div className="flex flex-col gap-2">
-                        {" "}
-                        {usersRoles.map((role, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            {" "}
-                            <Checkbox
-                              id={role}
-                              /*   checked={} */
-                              className="mt-0.5"
-                            />
-                            <label
-                              htmlFor={role}
-                              className="text-sm font-medium max-w-[200px] cursor-pointer"
-                            >
-                              {role}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })()}
-                </PopoverContent>
-              </Popover>
-              <Button
-                variant={"outline"}
-                size={"sm"}
-                className="rounded-full py-3 text-sm bg-transparent text-slate-500 px-2"
-              >
-                Reset <RotateCcw size={9} />
-              </Button>
-            </div>
+            <Filter
+              label="Filter By Role"
+              data={userlist?.users
+                ?.map((user: any) => user.roleName)
+                .filter(
+                  (role: any, index: any, arr: any) =>
+                    arr.indexOf(role) === index
+                )}
+              selectedFilter={selectedFilter}
+              setSelectedFilter={(data: string) =>
+                setSelectedFilter((currentData) =>
+                  currentData.includes(data)
+                    ? currentData.filter((item: string) => item !== data)
+                    : [...currentData, data]
+                )
+              }
+              reset={() => setSelectedFilter([])}
+            />
           </div>
         </div>
         <ManageUserModal

@@ -9,11 +9,12 @@ import Loaders from "./loaders";
 interface DownloadEntriesProps {
   isLoading: boolean;
   setIsLoading: (value: boolean) => void;
+  data: any;
 }
 export const DownloadEntries = forwardRef<
   HTMLButtonElement,
   DownloadEntriesProps
->(({ isLoading, setIsLoading }, ref) => {
+>(({ isLoading, setIsLoading, data }, ref) => {
   const pageRefs = useRef<React.RefObject<HTMLDivElement>[]>(
     Array(7)
       .fill(null)
@@ -23,23 +24,46 @@ export const DownloadEntries = forwardRef<
   const A4_HEIGHT = 842;
   const generatePDF = async () => {
     setIsLoading(true);
-
     const pdf = new jsPDF("p", "mm", "a4");
 
     for (let i = 0; i < pageRefs.length; i++) {
       if (!pageRefs[i]?.current) continue;
 
+      // Convert page to canvas
       const canvas = await html2canvas(pageRefs[i].current as HTMLElement, {
         scale: 3,
         imageTimeout: 1500,
-        width: A4_WIDTH,
-        height: A4_HEIGHT,
       });
 
       const imgData = canvas.toDataURL("image/png");
+      const contentHeight = canvas.height * (210 / canvas.width); // Scale height based on width
 
-      if (i > 0) pdf.addPage();
-      pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "SLOW");
+      // PAGE 1 & 2: FIXED SIZE
+      if (i < 2) {
+        if (i > 0) pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, 0, 210, 297, undefined, "SLOW");
+      }
+      // PAGE 3+: DYNAMIC HEIGHT
+      else {
+        let currentY = 0;
+        const maxPageHeight = 297; // A4 Page height
+
+        while (currentY < contentHeight) {
+          if (i > 2 || currentY > 0) pdf.addPage(); // Add a new page for overflow
+          pdf.addImage(
+            imgData,
+            "JPEG",
+            0,
+            -currentY,
+            210,
+            contentHeight,
+            undefined,
+            "SLOW"
+          );
+
+          currentY += maxPageHeight;
+        }
+      }
     }
 
     pdf.save("entry_download.pdf");
@@ -260,6 +284,7 @@ export const DownloadEntries = forwardRef<
               <span>7</span>
             </div>{" "}
           </div>
+
           <div
             className="flex flex-col justify-between bg-white px-10 py-6 max-w-3xl mb-4"
             style={{ width: `${A4_WIDTH}px`, height: `${A4_HEIGHT}px` }}
@@ -719,7 +744,6 @@ export const DownloadEntries = forwardRef<
                 </p>
 
                 <div className="space-y-4 text-gray-800 text-xs mt-6">
-                  {/* Placeholder Text */}
                   <p>
                     handkerchief from hurt ruin shine bread add strong first
                     effort persuasion ability manage you rock robbery condition
@@ -733,14 +757,12 @@ export const DownloadEntries = forwardRef<
                     See attached documents for additional information.
                   </p>
 
-                  {/* Alignment with DICT */}
                   <h2 className="text-xs font-semibold text-gray-900">
                     Describe how the project aligns with or supports the mandate
                     and programs of the Department of Information and
                     Communications Technology (DICT).
                   </h2>
 
-                  {/* More Placeholder Text */}
                   <p>
                     Forth momentary rice cattle call international nurse
                     ornament loss spring excessive bury pig dream ticket bunch

@@ -383,25 +383,23 @@ export default function Page() {
                         status={item.isApproved}
                         fetchData={getRegistrationsList}
                       >
-                        <div className="bg-slate-100 transition-colors hover:bg-slate-200 text-xs  text-slate-900 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap rounded-full py-0.5 w-full">
+                        <div className="bg-slate-100 transition-colors hover:bg-slate-200 text-xs  text-slate-900 flex h-[20px] w-fit items-center justify-center gap-1 cursor-pointer whitespace-nowrap rounded-full  p-2">
                           {" "}
                           <Image src={pdf} alt="PDF Icon" />
-                          View PDF <Eye size={10} className=" shrink-0" />
+                          <span className="text-[10px]">View PDF</span>{" "}
+                          <Eye size={10} className=" shrink-0" />
                         </div>
                       </ViewPDF>
                     </TableCell>
                     <TableCell className="flex flex-col text-center space-y-2">
                       <Dialog>
                         <DialogTrigger>
-                          <Button
-                            size={"sm"}
-                            className="bg-[#DBEAFE] whitespace-nowrap hover:bg-[#bcd9ff] text-xs text-[#1E40AF]  h-fit rounded-full w-min px-2 py-0.5"
-                          >
-                            <div className="flex gap-1">
-                              <Eye size={13} />
+                          <div className="bg-[#DBEAFE] flex  items-center  gap-1 whitespace-nowrap hover:bg-[#bcd9ff] text-xs text-[#1E40AF]  h-fit rounded-full w-min px-2 py-0.5">
+                            <Eye size={10} className=" shrink-0" />
+                            <div className="flex gap-1 text-[10px] ">
                               View Details
                             </div>
-                          </Button>
+                          </div>
                         </DialogTrigger>
                         <DialogContent className="w-full max-w-[528px]">
                           <DialogHeader>
@@ -480,21 +478,15 @@ export default function Page() {
                         </DialogContent>
                       </Dialog>
                       {item.isApproved && (
-                        <div className="flex items-start">
-                          <CustomBadge
-                            color="emerald"
-                            message="Verified"
-                            icon={<Check size={13} />}
-                            className="rounded-full h-[20px] whitespace-nowrap font-medium bg-[#CCFBF1] text-[#115E59]  "
-                          />
+                        <div className="flex items-center justify-center gap-1 text-[#115E59] text-[10px] font-semibold">
+                          <Check size={13} /> <span>Verified</span>
                         </div>
                       )}
 
                       {!item.isApproved && (
-                        <CustomBadge
-                          message="For Verification"
-                          className="rounded-full h-[20px] whitespace-nowrap font-medium bg-[#FFF1C2] text-[#BF6A02] "
-                        />
+                        <div className="text-center text-[#BF6A02] text-[10px] font-semibold">
+                          For Verification
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>

@@ -12,6 +12,9 @@ import { encrypt } from "@/utils/utility";
 import { apiGet, apiPost } from "@/utils/api";
 import { toast } from "@/hooks/use-toast";
 import Image from "next/image";
+import egov from "@/public/assets/images/egov.svg";
+
+import lgu from "@/public/assets/images/lgus.webp";
 
 import dict from "@/public/assets/images/dict2.webp";
 import Loading from "@/components/shared/loading";
@@ -92,6 +95,16 @@ export default function SignInPage() {
           setTimer(30);
           setIsLoading(false);
         }
+        if (message.includes("not found")) {
+          setIsLoading(false);
+
+          toast({
+            title: "Email Not Found",
+            description: "Please check and try again.",
+            variant: "destructive",
+            duration: 2500,
+          });
+        }
       } catch (e) {
         console.error("Error:", e);
         setIsLoading(false);
@@ -99,7 +112,7 @@ export default function SignInPage() {
           title: "Invalid Email",
           description: "Enter a valid email.",
           variant: "destructive",
-          duration: 2000,
+          duration: 2500,
         });
       }
     }
@@ -110,6 +123,26 @@ export default function SignInPage() {
 
       <div className="size-full overflow-hidden ">
         <div className="size-full">
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              duration: 1,
+              ease: "easeOut",
+            }}
+            className="flex flex-col flex-wrap items-center justify-center gap-4 mx-auto w-fit mb-14 overflow-hidden"
+          >
+            <Image
+              src={egov}
+              alt="dict"
+              className="object-contain max-w-[242px] w-full"
+            />
+            <Image
+              src={lgu}
+              alt="dict"
+              className="object-contain max-w-[305px] w-full pl-10 sm:ml-0"
+            />
+          </m.div>
           <m.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
@@ -151,7 +184,6 @@ export default function SignInPage() {
                 };
                 return (
                   <Form className="max-w-[380px]  mx-auto lg:mx-0  overflow-hidden w-full">
-                    {" "}
                     <h2 className="font-bold text-base uppercase mb-4 text-center text-blue-600">
                       {action == "login"
                         ? "Login"
@@ -331,13 +363,28 @@ export default function SignInPage() {
                                       className="absolute top-1/2 -translate-y-1/2 left-3"
                                     />
                                   </div>
-                                  {isSubmitted && (
+                                  {isSubmitted ? (
                                     <m.p
                                       initial={{ opacity: 0 }}
                                       animate={{ opacity: 1 }}
                                       className="text-xs text-emerald-500"
                                     >
-                                      Password reset link sent.
+                                      Password reset link sent. <br /> <br />
+                                      Please check your email for the password
+                                      reset link. If you haven’t received it,
+                                      ensure that you have entered the correct
+                                      email address.{" "}
+                                    </m.p>
+                                  ) : (
+                                    <m.p
+                                      initial={{ opacity: 0 }}
+                                      animate={{ opacity: 1 }}
+                                    >
+                                      <p className="text-sm font-medium text-gray-400 mt-1">
+                                        Please provide the email linked to your
+                                        account. A password reset link will be
+                                        sent to that email.
+                                      </p>
                                     </m.p>
                                   )}
                                   <ErrorMessage
