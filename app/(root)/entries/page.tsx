@@ -21,15 +21,6 @@ import {
   AccordionContent,
   AccordionItem,
 } from "@/components/ui/accordion";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
 import { useSearchParams } from "next/navigation";
 import {
@@ -60,6 +51,7 @@ import { entriesFilterOptions } from "@/constants";
 import { DownloadEntries } from "@/components/downloadEntries";
 import Loaders from "@/components/loaders";
 import { apiGet } from "@/utils/api";
+import CustomPagination from "@/components/shared/pagination";
 export default function Entries() {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get("filter");
@@ -71,7 +63,9 @@ export default function Entries() {
   const getEntryList = async () => {
     try {
       const res = await apiGet(
-        `/api/entry/view?page=${page}&limit=${limit}&order=desc`
+        `/api/entry/view?status=${
+          filterParams === "All" ? "all" : filterParams
+        }&page=${page}&limit=${limit}&order=desc`
       );
       const { data } = res;
       if (!data) return;
@@ -87,7 +81,6 @@ export default function Entries() {
       const res = await apiGet(`/api/entry/view/67ea4f09abcf25baacf3833d`);
       const { data } = res;
       if (!data) return;
-      console.log("data :", data);
       /*       setEntriesList(data);
        */
     } catch (e) {
@@ -96,7 +89,7 @@ export default function Entries() {
   };
   useEffect(() => {
     getEntryList();
-  }, [page]);
+  }, [page, filterParams]);
 
   const validationSchema = Yup.object().shape({
     impact: Yup.number()
@@ -119,11 +112,7 @@ export default function Entries() {
     <div className="min-h-screen flex w-full">
       <div className="space-y-2 h-full w-full">
         <h1 className="text-slate-600 font-bold text-2xl uppercase">
-          {filterParams == "all"
-            ? "All Entries"
-            : filterParams == "review"
-            ? "For Review"
-            : filterParams}
+          {filterParams}
         </h1>
         <h2 className="text-blue-900 text-base py-4">
           Theme: 11th eGOV Awards: Excellence in Governance Through Information
@@ -228,36 +217,48 @@ export default function Entries() {
           <TableHeader>
             <TableRow>
               {(() => {
-                const headers = [
-                  "Application",
-                  "LGU",
-                  "Project Name",
-                  "Category",
-                  "Ranking",
-                  "Action",
-                ];
-                const filteredHeaders = headers.filter(
-                  (header) => header != "Ranking"
-                ); // hide ranking header for other filtered view
-                return [
-                  "Application",
-                  "LGU",
-                  "Project Name",
-                  "Category",
-                  "Ranking",
-                  "Action",
-                ].map((th, index) => (
+                const headers =
+                  filterParams === "Final"
+                    ? [
+                        "Application",
+                        "LGU",
+                        "Project Name",
+                        "Category",
+                        "Ranking",
+                        "Action",
+                      ]
+                    : [
+                        "Application",
+                        "LGU",
+                        "Project Name",
+                        "Category",
+                        "Action",
+                      ];
+
+                return headers.map((th, index) => (
                   <TableHead
                     key={index}
                     className={` font-medium ${
-                      th === "Application"
+                      filterParams === "Final"
+                        ? th === "Application"
+                          ? "w-[167px]"
+                          : th == "LGU"
+                          ? "w-[208px]"
+                          : th === "Project Name"
+                          ? "w-[500px]"
+                          : th === "Ranking"
+                          ? "w-[0px] text-center"
+                          : th == "Category"
+                          ? "w-0 text-center"
+                          : th == "Action"
+                          ? "w-20 text-center"
+                          : ""
+                        : th === "Application"
                         ? "w-[167px]"
                         : th == "LGU"
                         ? "w-[208px]"
                         : th === "Project Name"
                         ? "w-[500px]"
-                        : th === "Ranking"
-                        ? "w-[0px] text-center"
                         : th == "Category"
                         ? "w-0 text-center"
                         : th == "Action"
@@ -321,10 +322,12 @@ export default function Entries() {
                     <TableCell>
                       <div className="text-base">
                         <h2 className="text-slate-900 line-clamp-2">
-                          Calabanga
+                          {item?.authRepData?.lgu +
+                            " " +
+                            item?.authRepData?.province}
                         </h2>{" "}
                         <h3 className="line-clamp-1 text-slate-500 ">
-                          Camarines Sur{" "}
+                          {item?.authRepData?.region}{" "}
                         </h3>
                       </div>
                     </TableCell>
@@ -358,16 +361,19 @@ export default function Entries() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-center">
-                      <div className="bg-[#CCFBF1] py-1.5 mx-auto px-2.5 w-fit rounded-full">
-                        {item.ranking}
-                      </div>
-                    </TableCell>
+                    {filterParams === "Final" && (
+                      <TableCell className="text-center">
+                        <div className="bg-[#CCFBF1] py-1.5 mx-auto px-2.5 w-fit rounded-full">
+                          {item.ranking}
+                        </div>
+                      </TableCell>
+                    )}
+
                     <TableCell className="flex flex-col text-center space-y-1">
                       <Link
                         href={{
                           pathname: "/entries/entry",
-                          query: { filter: "all", id: index },
+                          query: { id: item?._id },
                         }}
                         draggable={false}
                         className="bg-[#DBEAFE] h-[24px] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF] px-1.5 rounded-full flex gap-1 items-center p-1"
@@ -535,64 +541,26 @@ export default function Entries() {
             })()}
           </TableBody>
         </Table>
-        <Pagination className="text-slate-500">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => {
-                  setPage(page - 1);
-                }}
-                className={`hover:cursor-pointer hover:bg-slate-200 rounded-md mr-2 active:bg-slate-300 ${
-                  page === 1
-                    ? "opacity-50 cursor-not-allowed pointer-events-none"
-                    : ""
-                }`}
+        <div className="">
+          <div className="flex justify-between items-center text-base font-medium text-[#6B7280]">
+            <div>
+              Showing {(page - 1) * limit + 1} to{" "}
+              {entriesList?.pages == page
+                ? entriesList?.totalItems
+                : page * limit}{" "}
+              of {entriesList?.totalItems}{" "}
+              {filterParams == "All" ? "" : filterParams} Entries{" "}
+            </div>
+
+            <div>
+              <CustomPagination
+                page={page}
+                setPage={(value: any) => setPage(value)}
+                data={entriesList}
               />
-            </PaginationItem>
-
-            {page > 3 && entriesList?.pages > 5 && (
-              <PaginationItem>
-                <PaginationEllipsis className="hover:bg-slate-200 p-1 rounded-md" />
-              </PaginationItem>
-            )}
-
-            {/* Middle Pages */}
-            {Array.from({ length: entriesList?.pages }, (_, i) => i + 1)
-              .filter((item) => item >= page - 1 && item <= page + 1) // Show only nearby pages
-              .map((item) => (
-                <PaginationItem key={item}>
-                  <PaginationLink
-                    className={`hover:cursor-pointer hover:bg-slate-200 rounded-md  active:bg-slate-300 ${
-                      page === item ? "bg-slate-200" : ""
-                    }`}
-                    onClick={() => setPage(item)}
-                  >
-                    {item}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-
-            {/* Show Ellipsis if More Pages Exist After Current Page */}
-            {page < entriesList?.pages - 2 && entriesList?.pages > 5 && (
-              <PaginationItem>
-                <PaginationEllipsis className="hover:bg-slate-200 p-1 rounded-md" />
-              </PaginationItem>
-            )}
-
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => {
-                  setPage(page + 1);
-                }}
-                className={`hover:cursor-pointer hover:bg-slate-200 rounded-md mr-2 active:bg-slate-300 ${
-                  entriesList?.pages == page
-                    ? "opacity-50 cursor-not-allowed pointer-events-none"
-                    : ""
-                }`}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+            </div>
+          </div>
+        </div>
       </div>
       <DownloadEntries
         isLoading={isLoading}

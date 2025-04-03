@@ -45,21 +45,26 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Field, Form, Formik } from "formik";
 import { apiGet } from "@/utils/api";
+import CustomPagination from "@/components/shared/pagination";
 export default function Page() {
-  const [participationsList, setParticipationsList] = useState<any>([]);
-  const getParticipationsList = async () => {
+  const [participantsList, setParticipantsList] = useState<any>([]);
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
+  const getParticipantsList = async () => {
     try {
-      const res = await apiGet("/api/lgu/participants/list");
+      const res = await apiGet(
+        `/api/lgu/participants/list?page=${page}&limit=${limit}&order=desc`
+      );
       const { data } = res;
       if (!data) return;
-      setParticipationsList(data);
+      setParticipantsList(data);
     } catch (e) {
       console.error("Error fetching participants list:", e);
     }
   };
   useEffect(() => {
-    getParticipationsList();
-  }, []);
+    getParticipantsList();
+  }, [page]);
   const filterChecklist = [
     {
       title: "FILTER BY STATUS",
@@ -372,7 +377,7 @@ export default function Page() {
                 );
               };
 
-              return participationsList?.participants?.map(
+              return participantsList?.participants?.map(
                 (item: any, index: any) => (
                   <React.Fragment key={index}>
                     <TableRow
@@ -532,27 +537,21 @@ export default function Page() {
             })()}
           </TableBody>
         </Table>
-        <div className="flex justify-between items-center w-full">
-          <div className="text-base text-slate-500">
-            Showing 1 to 10 of 24 Participants
-          </div>
+        <div className="flex justify-between items-center text-base font-medium text-[#6B7280]">
           <div>
-            <Pagination className="text-slate-500 w-fit">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious href="#" />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">1</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext href="#" />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            Showing {(page - 1) * limit + 1} to{" "}
+            {participantsList?.pages == page
+              ? participantsList?.totalItems
+              : page * limit}{" "}
+            of {participantsList?.totalItems} Participants{" "}
+          </div>
+
+          <div>
+            <CustomPagination
+              page={page}
+              setPage={(value: any) => setPage(value)}
+              data={participantsList}
+            />
           </div>
         </div>
       </div>

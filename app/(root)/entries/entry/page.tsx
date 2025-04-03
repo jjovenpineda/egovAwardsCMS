@@ -1,45 +1,36 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { PSGC } from "@/constants";
-import { ErrorMessage, Field, Form, Formik } from "formik";
-import Image from "next/image";
-import pdf from "@/public/assets/images/pdf.svg";
-import React, { useState } from "react";
-import { ArrowLeft, ArrowRight, Lock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Field, Form, Formik } from "formik";
+
+import React, { useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight, ExternalLink, Lock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import FileViewer from "@/components/shared/file-viewer";
 import { Input } from "@/components/ui/input";
 import CustomBadge from "@/components/shared/custom-badge";
 import { Label } from "@/components/ui/label";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-
+import { apiGet } from "@/utils/api";
+import pdf from "@/public/assets/images/pdf.svg";
+import FileViewer from "@/components/shared/file-viewer";
+import Image from "next/image";
+import dayjs from "dayjs";
 const aboutTheLguLabels = [
-  { label: "LGU Name", value: "lgu" },
-  { label: "LGU Abbreviation", value: "lgu" },
-  { label: "Province", value: "province" },
-  { label: "Region", value: "region" },
-  { label: "Name of LCE", value: "nameOfLCE" },
-  { label: "Name of Office in LGU", value: "nameOfOffice" },
-  { label: "Contact Person", value: "contactPerson" },
-  { label: "Email", value: "email" },
-  { label: "Mobile Number", value: "mobileNumber" },
-  { label: "Office Number", value: "officeNumber" },
-  { label: "Facebook Page", value: "facebook" },
-  { label: "Website", value: "website" },
+  { label: "LGU Name", value: "authRepData.lgu" },
+  { label: "LGU Abbreviation", value: "authRepData.abbr" },
+  { label: "Province", value: "authRepData.province" },
+  { label: "Region", value: "authRepData.region" },
+  { label: "Name of LCE", value: "authRepData.lceName" },
+  { label: "Name of Office in LGU", value: "authRepData.officeName" },
+  { label: "Contact Person", value: "" },
+  { label: "Email", value: "authRepData.email" },
+  { label: "Mobile Number", value: "authRepData.mobile" },
+  { label: "Office Number", value: "authRepData.officeNo" },
+  { label: "Facebook Page", value: "authRepData.facebook" },
+  { label: "Website", value: "authRepData.website" },
 
   {
     label:
       "Number of times in joining eGOV, Digital Cities Awards, Digital Governance Awards from 2012 to 2022",
-    value: "egovAwardsCount",
+    value: "authRepData.joinCount",
   },
 ];
 interface AboutTheEntryLabel {
@@ -47,62 +38,33 @@ interface AboutTheEntryLabel {
   value: string;
 }
 const aboutTheEntryLabels: AboutTheEntryLabel[] = [
-  { label: "Project/Program Name", value: "projectName" },
-  { label: "Choose Category for Project", value: "projectCategory" },
+  { label: "Project/Program Name", value: "project" },
+  { label: "Choose Category for Project", value: "category" },
   { label: "Project Period", value: "projectPeriod" },
   { label: "Project URL", value: "projectURL" },
-  { label: "Supporting Documents", value: "documents" },
+  { label: "Supporting Documents", value: "supportingDoc" },
 ];
-const values = {
-  lgu: "012801000", // Example LGU ID (should match PSGC IDs)
-  province: "Ilocos Norte",
-  region: "Region I - Ilocos Region",
-  nameOfLCE: "Juan Dela Cruz",
-  nameOfOffice: "Municipal Information Office",
-  contactPerson: "Maria Santos",
-  email: "info@lgu-example.gov.ph",
-  mobileNumber: "09171234567",
-  officeNumber: "(077) 123-4567",
-  facebook: "https://www.facebook.com/LGUExample",
-  website: "https://www.lgu-example.gov.ph",
-  egovAwardsCount: 3, // Number of times LGU joined eGOV awards
-  projectName: "Smart City Initiative",
-  projectCategory: "Digital Innovation",
-  projectPeriod: "January 2022 - December 2023",
-  projectURL: "https://www.smartcity-example.gov.ph",
-  documents: [
-    {
-      title: "Invoice #001",
-      date: "2025-03-05",
-      recipient: "John Doe",
-      items: [
-        {
-          description: "Web Development Services",
-          quantity: 1,
-          price: 500.0,
-        },
-        {
-          description: "Hosting (1 Year)",
-          quantity: 1,
-          price: 100.0,
-        },
-      ],
-      total: 600.0,
-    },
-    {
-      title: "Report - Q1 2025",
-      date: "2025-03-05",
-      author: "Jane Smith",
-      summary:
-        "This report summarizes the financial and operational performance for Q1 2025.",
-    },
-  ],
-};
+
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [entryInfo, setEntryInfo] = useState<any>();
   const id = searchParams.get("id");
   const [page, setPage] = useState(1);
+
+  const getEntryById = async () => {
+    try {
+      const res = await apiGet(`/api/entry/view/${id}`);
+      const { data } = res;
+      if (!data) return;
+      setEntryInfo(data);
+    } catch (e) {
+      console.error("Error fetching participants list:", e);
+    }
+  };
+  useEffect(() => {
+    getEntryById();
+  }, [id]);
   return (
     <div className=" max-w-[80%]">
       <Button
@@ -123,16 +85,21 @@ export default function Page() {
           <div>
             <div className="flex gap-2">
               <div>
-                <h2 className="font-bold text-3xl">Entry #25G2BCAL</h2>{" "}
+                <h2 className="font-bold text-3xl">
+                  Entry #{entryInfo?.refNo}
+                </h2>{" "}
                 <h3 className="text-base text-slate-600">
-                  Application: January 26, 2025 8:23AM
+                  Application:{" "}
+                  {dayjs(entryInfo?.createdAt).format("MMMM D, YYYY h:mmA")}
                 </h3>
               </div>{" "}
-              <CustomBadge
-                color="orange"
-                message="FOR REVIEW
-"
-              />
+              {entryInfo?.status == "For Review" ? (
+                <CustomBadge color="orange" message={entryInfo?.status} />
+              ) : entryInfo?.status == "Draft" ? (
+                <CustomBadge color="gray" message={entryInfo?.status} />
+              ) : (
+                <CustomBadge color="emerald" message={entryInfo?.status} />
+              )}
             </div>
           </div>
           <section>
@@ -146,21 +113,6 @@ export default function Page() {
             </div>
             <div className="grid text-base w-full grid-cols-2 md:grid-cols-[_40%,_60%] md:gap-2">
               {aboutTheLguLabels.map((item, index) => {
-                const region = PSGC.regions.find((region) =>
-                  values.lgu.startsWith(region.id)
-                );
-                const province = PSGC.regions
-                  .find((region) => values.lgu.startsWith(region.id))
-                  ?.provinces.find((province) =>
-                    values.lgu.startsWith(province.id)
-                  );
-                const lgu = PSGC.regions
-                  .find((region) => values.lgu.startsWith(region.id))
-                  ?.provinces.find((province) =>
-                    values.lgu.startsWith(province.id)
-                  )
-                  ?.lgus.find((lgu) => lgu.id === values.lgu);
-
                 return (
                   <React.Fragment key={index}>
                     <div className="flex justify-between">
@@ -168,13 +120,19 @@ export default function Page() {
                     </div>
                     <div>
                       <div className=" font-medium text-slate-500">
-                        {item.value == "region"
-                          ? region?.name
-                          : item.value == "province"
-                          ? province?.name
-                          : item.value == "lgu"
-                          ? lgu?.name
-                          : values[item.value]}
+                        {item.label.includes("Contact Person")
+                          ? entryInfo?.authRepData?.firstname +
+                            " " +
+                            entryInfo?.authRepData?.middlename +
+                            " " +
+                            entryInfo?.authRepData?.lastname +
+                            "" +
+                            entryInfo?.authRepData?.suffix
+                          : item.value.includes("authRepData")
+                          ? entryInfo?.[item.value.split(".")[0]][
+                              item.value.split(".")[1]
+                            ]
+                          : entryInfo?.[item.value]}
                       </div>
                     </div>
                   </React.Fragment>
@@ -193,52 +151,64 @@ export default function Page() {
             </div>
             <div className="grid w-full grid-cols-2 text-base md:grid-cols-[_40%,_60%] md:gap-2">
               {aboutTheEntryLabels.map((item, index) => {
-                /* const category = categories.find(
-                (cat) => cat.value === values.projectCategory
-              ); */
                 return (
                   <React.Fragment key={index}>
                     <div className="flex justify-between">
                       {item.label}{" "}
-                      {item.value != "documents" && (
+                      {item.value != "supportingDoc" && (
                         <span className="mr-4">:</span>
                       )}
                     </div>
 
-                    {item.value == "documents" ? (
+                    {item.value == "supportingDoc" ? (
                       <div className="mb-2 font-medium text-slate-500 col-span-2">
                         <div className="flex flex-wrap gap-2 w-full ">
-                          {values.documents.length > 0 &&
-                            values.documents.map((item: any, index: any) => {
-                              const fileURL =
-                                item.name && URL.createObjectURL(item);
-                              return (
-                                <React.Fragment key={index}>
-                                  {/*   {item.name != "" && item.name != undefined && ( */}
-                                  <div className="flex items-center gap-2 w-fit">
-                                    {" "}
-                                    <div className="flex justify-between w-full gap-2 items-center bg-slate-500 p-2 rounded-md text-sm text-white font-semibold">
-                                      <div className="flex items-center gap-2  ">
-                                        <Image src={pdf} alt="" />
-                                        <h3 className="max-w-[300px] line-clamp-1">
-                                          {item.name} Lorem ipsum dolor sit amet
-                                          consectetur adipisicing elit
-                                        </h3>
+                          {entryInfo?.supportingDoc?.length > 0 &&
+                            entryInfo.supportingDoc.map(
+                              (item: any, index: any) => {
+                                return (
+                                  <React.Fragment key={index}>
+                                    <div className="flex items-center gap-2 w-fit">
+                                      {" "}
+                                      <div className="flex justify-between w-full gap-2 items-center bg-slate-500 p-2 rounded-md text-sm text-white font-semibold">
+                                        <div className="flex items-center gap-2  ">
+                                          <Image src={pdf} alt="" />
+                                          <h3 className="max-w-[300px] line-clamp-1">
+                                            {item.name} Lorem ipsum dolor sit
+                                            amet consectetur adipisicing elit
+                                          </h3>
+                                        </div>
+                                        <FileViewer url={item} />
                                       </div>
-                                      <FileViewer url={fileURL} />
                                     </div>
-                                  </div>
-                                  {/*  )} */}
-                                </React.Fragment>
-                              );
-                            })}
+                                  </React.Fragment>
+                                );
+                              }
+                            )}
                         </div>{" "}
                       </div>
                     ) : item.value == "projectCategory" ? (
                       <div className="mb-2 font-medium text-slate-500"></div>
+                    ) : item.value === "projectURL" ? (
+                      <>
+                        {" "}
+                        <a
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={
+                            entryInfo?.[item?.value].startsWith("http")
+                              ? entryInfo?.[item?.value]
+                              : `https://${entryInfo?.[item?.value]}`
+                          }
+                          className="flex items-center gap-3 mb-2 font-medium underline text-blue-500"
+                        >
+                          {entryInfo?.[item.value]}{" "}
+                          <ExternalLink size={20} className="text-slate-300" />
+                        </a>
+                      </>
                     ) : (
                       <div className="mb-2 font-medium text-slate-500">
-                        {values[item.value]}
+                        {entryInfo?.[item.value]}
                       </div>
                     )}
                   </React.Fragment>
@@ -251,11 +221,39 @@ export default function Page() {
       {page == 2 && (
         <Formik
           initialValues={{
-            impact: 0,
-            relevance: 0,
-            sustainability: 0,
-            innovation: 0,
-            alignment: 0,
+            impactAnswer: {
+              text: entryInfo?.impactAnswer?.text || "",
+              file: entryInfo?.impactAnswer?.file || "",
+              score: entryInfo?.impactAnswer?.score || "",
+            },
+            relevanceAnswer: {
+              text: entryInfo?.relevanceAnswer?.text || "",
+              file: entryInfo?.relevanceAnswer?.file || "",
+              score: entryInfo?.relevanceAnswer?.score || "",
+            },
+            sustainabilityAnswer: {
+              text: entryInfo?.sustainabilityAnswer?.text || "",
+              file: entryInfo?.sustainabilityAnswer?.file || "",
+              score: entryInfo?.sustainabilityAnswer?.score || "",
+            },
+            innovationAnswer: {
+              text: entryInfo?.innovationAnswer?.text || "",
+              file: entryInfo?.innovationAnswer?.file || "",
+              score: entryInfo?.innovationAnswer?.score || "",
+            },
+            alignmentAnswerDICT: {
+              text: entryInfo?.alignmentAnswerDICT?.text || "",
+              file: entryInfo?.alignmentAnswerDICT?.file || "",
+              score: entryInfo?.alignmentAnswerDICT?.score || "",
+            },
+            alignmentSDG: {
+              target: entryInfo?.alignmentSDG?.target || [],
+              answer: {
+                text: entryInfo?.alignmentSDG?.answer?.text || "",
+                file: entryInfo?.alignmentSDG?.answer?.file || "",
+                score: entryInfo?.alignmentSDG?.answer?.score || 0,
+              },
+            },
           }}
           validationSchema={""}
           onSubmit={(values, actions) => {
@@ -271,15 +269,36 @@ export default function Page() {
                       <div>
                         <div className="flex gap-4">
                           <h2 className="font-bold text-3xl">
-                            Entry #25G2BCAL
+                            Entry #{entryInfo?.refNo}
                           </h2>{" "}
-                          <CustomBadge color="emerald" message="GRADED" />
+                          {entryInfo?.status == "For Review" ? (
+                            <CustomBadge
+                              color="orange"
+                              message={entryInfo?.status}
+                            />
+                          ) : entryInfo?.status == "Draft" ? (
+                            <CustomBadge
+                              color="gray"
+                              message={entryInfo?.status}
+                            />
+                          ) : (
+                            <CustomBadge
+                              color="emerald"
+                              message={entryInfo?.status}
+                            />
+                          )}{" "}
                         </div>
                         <h3 className="text-base text-slate-600">
-                          Application: January 26, 2025 8:23AM
+                          Application:{" "}
+                          {dayjs(entryInfo?.createdAt).format(
+                            "MMMM D, YYYY h:mmA"
+                          )}
                         </h3>
                         <h3 className="text-base text-slate-600">
-                          Graded: January 26, 2025 8:23AM
+                          Graded:{" "}
+                          {dayjs(entryInfo?.createdAt).format(
+                            "MMMM D, YYYY h:mmA"
+                          )}
                         </h3>
                       </div>{" "}
                       <div className="flex items-end gap-8">
@@ -295,22 +314,22 @@ export default function Page() {
                     <div className="flex   font-medium text-xs text-blue-600">
                       {(() => {
                         const labels = [
-                          { label: "Impact", value: "impact" },
+                          { label: "Impact", value: "impactAnswer.score" },
                           {
                             label: "Relevance",
-                            value: "relevance",
+                            value: "relevanceAnswer.score",
                           },
                           {
                             label: "Sustainability",
-                            value: "sustainability",
+                            value: "sustainabilityAnswer.score",
                           },
                           {
                             label: "Innovation",
-                            value: "innovation",
+                            value: "innovationAnswer.score",
                           },
                           {
                             label: "Alignment with Goals",
-                            value: "alignment",
+                            value: "alignmentSDG.answer.score",
                           },
                         ];
 
@@ -318,7 +337,16 @@ export default function Page() {
                           <div key={index} className="flex w-full gap-2 ">
                             <h3>{item.label}</h3>
                             <h4>
-                              <strong>40</strong>/50
+                              <strong>
+                                {item.label === "Alignment with Goals"
+                                  ? entryInfo?.[item.value.split(".")[0]][
+                                      item.value.split(".")[1]
+                                    ][item.value.split(".")[2]]
+                                  : entryInfo?.[item.value.split(".")[0]][
+                                      item.value.split(".")[1]
+                                    ]}
+                              </strong>
+                              /50
                             </h4>
                           </div>
                         ));
@@ -374,29 +402,30 @@ export default function Page() {
                       transparency and accountability in local governance? (You
                       may cite several major impacts)
                     </h2>
-                    {/*      <p
-                    className="text-slate-500 text-base font-light leading-normal line-clamp-6"
-                    dangerouslySetInnerHTML={{ __html: values.impactText }}
-                  /> */}
+                    <p
+                      className="text-slate-500 text-base font-light leading-normal line-clamp-6"
+                      dangerouslySetInnerHTML={{
+                        __html: entryInfo?.impactAnswer?.text,
+                      }}
+                    />
                     <div className="mb-2 font-medium text-slate-500 col-span-2">
                       <div className="flex flex-wrap gap-2 w-full ">
-                        {/*  {values.impactFile &&
-                        values.impactFile.name &&
-                        (() => {
-                          const fileURL = URL.createObjectURL(values.impactFile);
-            
-                          return (
-                            <div className="flex items-center gap-2 w-fit">
-                              <div className="flex justify-between w-full gap-2 items-center bg-slate-500 p-2 rounded-md text-sm text-white font-semibold">
-                                <div className="flex items-center gap-2">
-                                  <Image src={pdf} alt="PDF Icon" />
-                                  {values.impactFile.name}
+                        {/* {entryInfo?.impactAnswer.file &&
+                          (() => {
+                            return (
+                              <div className="flex items-center gap-2 w-fit">
+                                <div className="flex justify-between w-full gap-2 items-center bg-slate-500 p-2 rounded-md text-sm text-white font-semibold">
+                                  <div className="flex items-center gap-2">
+                                    <Image src={pdf} alt="PDF Icon" />
+                                    {entryInfo?.impactAnswer.name}
+                                  </div>
+                                  <FileViewer
+                                    url={entryInfo?.impactAnswer.file}
+                                  />
                                 </div>
-                                <FileViewer url={fileURL} />
                               </div>
-                            </div>
-                          );
-                        })()} */}
+                            );
+                          })()} */}
                       </div>{" "}
                       {/* <ErrorMessage
                       name="impactCheck"
@@ -463,10 +492,12 @@ export default function Page() {
                       observed since the implementation of the project in
                       relation to the problem it aims to solve?
                     </h2>
-                    {/* <p
-                    className="text-slate-500 text-base font-light leading-normal line-clamp-6"
-                    dangerouslySetInnerHTML={{ __html: values.relevanceText }}
-                  /> */}
+                    <p
+                      className="text-slate-500 text-base font-light leading-normal line-clamp-6"
+                      dangerouslySetInnerHTML={{
+                        __html: entryInfo?.relevanceAnswer?.text,
+                      }}
+                    />
                     <div className="mb-2 font-medium text-slate-500 col-span-2">
                       <div className="flex flex-wrap gap-2 w-full ">
                         {/* {values.relevanceFile &&
@@ -552,10 +583,12 @@ export default function Page() {
                       observed since the implementation of the project in
                       relation to the problem it aims to solve?
                     </h2>
-                    {/*  <p
-                    className="text-slate-500 text-base font-light leading-normal line-clamp-6"
-                    dangerouslySetInnerHTML={{ __html: values.sustainabilityText }}
-                  /> */}
+                    <p
+                      className="text-slate-500 text-base font-light leading-normal line-clamp-6"
+                      dangerouslySetInnerHTML={{
+                        __html: entryInfo?.sustainabilityAnswer?.text,
+                      }}
+                    />
                     <div className="mb-2 font-medium text-slate-500 col-span-2">
                       <div className="flex flex-wrap gap-2 w-full ">
                         {/* {values.sustainabilityFile &&
@@ -641,10 +674,12 @@ export default function Page() {
                       they contributed to addressing the problems?
                     </h2>
 
-                    {/* <p
-                    className="text-slate-500 text-base font-light leading-normal line-clamp-6"
-                    dangerouslySetInnerHTML={{ __html: values.innovationText }}
-                  /> */}
+                    <p
+                      className="text-slate-500 text-base font-light leading-normal line-clamp-6"
+                      dangerouslySetInnerHTML={{
+                        __html: entryInfo?.innovationAnswer?.text,
+                      }}
+                    />
                     <div className="mb-2 font-medium text-slate-500 col-span-2">
                       {/*     <div className="flex flex-wrap gap-2 w-full ">
                       {values.innovationFile &&
@@ -754,10 +789,12 @@ export default function Page() {
                         chosen SDGs?){" "}
                       </h2>
 
-                      {/* <p
-                      className="text-slate-500 text-base font-light leading-normal line-clamp-6"
-                      dangerouslySetInnerHTML={{ __html: values.goalText1 }}
-                    /> */}
+                      <p
+                        className="text-slate-500 text-base font-light leading-normal line-clamp-6"
+                        dangerouslySetInnerHTML={{
+                          __html: entryInfo?.alignmentSDG?.answer?.text,
+                        }}
+                      />
                       <div className="mb-2 font-medium text-slate-500 col-span-2">
                         {/*       <div className="flex flex-wrap gap-2 w-full ">
                         {values.goalFile1 &&
@@ -793,10 +830,12 @@ export default function Page() {
                         and Communications Technology (DICT).
                       </h2>
 
-                      {/*  <p
-                      className="text-slate-500 text-base font-light leading-normal line-clamp-6"
-                      dangerouslySetInnerHTML={{ __html: values.goalText2 }}
-                    /> */}
+                      <p
+                        className="text-slate-500 text-base font-light leading-normal line-clamp-6"
+                        dangerouslySetInnerHTML={{
+                          __html: entryInfo?.alignmentAnswerDICT?.text,
+                        }}
+                      />
                       <div className="mb-2 font-medium text-slate-500 col-span-2">
                         {/* <div className="flex flex-wrap gap-2 w-full ">
                         {values.goalFile2 &&

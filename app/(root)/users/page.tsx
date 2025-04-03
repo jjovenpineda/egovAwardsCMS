@@ -48,14 +48,25 @@ import { apiGet, apiPost, apiPut } from "@/utils/api";
 import { Switch } from "@/components/ui/switch";
 import Loaders from "@/components/loaders";
 import Filter from "@/components/shared/filter";
+import CustomPagination from "@/components/shared/pagination";
 
 export default function Page() {
   const [selectedFilter, setSelectedFilter] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debounceQuery, setDebounceQuery] = useState<any>(null);
   const [userlist, setUserList] = useState<any>([]);
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebounceQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
   const getUserList = async () => {
     try {
       const res = await apiGet(
-        `/api/auth/users/list?page=1&limit=50&order=desc`
+        `/api/auth/users/list?page=${page}&limit=${limit}&order=desc&roles=${selectedFilter}&search=${debounceQuery}`
       );
       const { data } = res;
       if (!data) return;
@@ -66,7 +77,7 @@ export default function Page() {
   };
   useEffect(() => {
     getUserList();
-  }, []);
+  }, [page, selectedFilter, debounceQuery]);
 
   return (
     <div className="max-w-[90%] flex flex-col gap-4">
@@ -81,6 +92,11 @@ export default function Page() {
             <Input
               type="text"
               placeholder="Search User"
+              onChange={(e) => {
+                setTimeout(() => {
+                  setSearchQuery(e.target.value);
+                }, 500);
+              }}
               className="pl-10 h-[46px]   rounded-lg"
             />{" "}
             <Search
@@ -91,12 +107,7 @@ export default function Page() {
           <div>
             <Filter
               label="Filter By Role"
-              data={userlist?.users
-                ?.map((user: any) => user.roleName)
-                .filter(
-                  (role: any, index: any, arr: any) =>
-                    arr.indexOf(role) === index
-                )}
+              data={userlist?.roleList?.map((item: any) => item.name)}
               selectedFilter={selectedFilter}
               setSelectedFilter={(data: string) =>
                 setSelectedFilter((currentData) =>
@@ -162,31 +173,30 @@ export default function Page() {
                   {item.email}
                 </TableCell>
 
-                <TableCell className="">
+                <TableCell>
                   <div className="flex items-center gap-2">
-                    {userlist?.roleList
-                      ?.filter((role: any) => role._id === item.role)
-                      ?.map((item: any, index: any) => (
-                        <div key={index}>
-                          <CustomBadge
-                            color="gray"
-                            key={index}
-                            message={item.name}
-                            className="text-[10px] rounded-full py-0 font-medium"
-                          />
-                        </div>
-                      ))}
+                    <CustomBadge
+                      color="gray"
+                      key={index}
+                      message={item?.roleName}
+                      className="text-[10px] rounded-full py-0 font-medium"
+                    />
                   </div>
                 </TableCell>
                 <TableCell className="text-blue-500 text-base  font-normal">
-                  <div className="flex justify-center">
+                  <div className="flex gap-1 items-center justify-start">
                     <Switch
                       color="green"
                       className=""
                       checked={item.isActive}
-                      /*                       onCheckedChange={field.onChange}
-                       */
                     />
+                    <div
+                      className={`text-[10px] font-medium ${
+                        item.isActive ? "text-slate-500" : "text-red-500"
+                      }`}
+                    >
+                      {item.isActive ? "Activated" : "Deactivated"}
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell className="">
@@ -211,22 +221,16 @@ export default function Page() {
           ))}
         </TableBody>
       </Table>
-      <Pagination className="text-slate-500">
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious href="#" />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#">1</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationEllipsis />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext href="#" />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      <div className="flex justify-between items-center text-base font-medium text-[#6B7280]">
+        <div>
+          Showing {(page - 1) * limit + 1} to{" "}
+          {userlist?.pages == page ? userlist?.totalItems : page * limit} of{" "}
+          {userlist?.totalItems} Users{" "}
+        </div>
+        <div>
+          <CustomPagination page={page} setPage={setPage} data={userlist} />
+        </div>
+      </div>
     </div>
   );
 }

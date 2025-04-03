@@ -13,7 +13,7 @@ export default function CustomBadge({
   className?: string;
 }) {
   const colors: Record<string, string> = {
-    gray: "text-gray-700 bg-gray-100",
+    gray: "text-gray-700 bg-gray-200",
     orange: "text-orange-500 bg-orange-100",
     red: "text-red-700 bg-red-100",
     emerald: "text-emerald-700 bg-emerald-100",
