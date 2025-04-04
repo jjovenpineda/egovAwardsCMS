@@ -52,11 +52,14 @@ import { DownloadEntries } from "@/components/downloadEntries";
 import Loaders from "@/components/loaders";
 import { apiGet } from "@/utils/api";
 import CustomPagination from "@/components/shared/pagination";
+import Filter from "@/components/shared/filter";
+import { filterChecklist } from "../registrations/page";
 export default function Entries() {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get("filter");
   const downloadRef = useRef<HTMLButtonElement>(null);
   const [entriesList, setEntriesList] = useState<any>();
+  const [selectedFilter, setSelectedFilter] = useState<any>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -144,74 +147,20 @@ export default function Entries() {
             />
           </div>
         </div>
-        <div className="text-xs text-slate-500 font-semibold">
-          <Label>Filter</Label>
-          <div className="flex gap-4 items-center mt-1">
-            <Popover>
-              <PopoverTrigger className="text-slate-900 h-fit border group text-sm  flex items-center gap-2 bg-white p-2 px-3 rounded-lg">
-                <Sliders size={15} className="text-slate-500" />
-                {}
-                <div className="flex gap-1 items-center border p-2 rounded-full text-xs font-medium text-[#6B7280]">
-                  test{" "}
-                  <div className="flex items-center justify-center bg-[#E5E7EB] hover:bg-slate-300 transition-color duration-200 rounded-full size-3.5 ">
-                    <X size={10} className=" text-black" />
-                  </div>
-                </div>
-                <div className="flex gap-1 items-center border p-2 rounded-full text-xs font-medium text-[#6B7280]">
-                  test{" "}
-                  <div className="flex items-center justify-center bg-[#E5E7EB] hover:bg-slate-300 transition-color duration-200 rounded-full size-3.5 ">
-                    <X size={10} className=" text-black" />
-                  </div>
-                </div>
-              </PopoverTrigger>
-              <PopoverContent
-                align="start"
-                className="grid grid-cols-2 max-h-[60vh] overflow-y-scroll"
-              >
-                {entriesFilterOptions?.map((section, index) => (
-                  <div key={index} className={`${index > 1 && "col-span-2 "}`}>
-                    {index > 1 && <hr className="my-6"></hr>}
-                    <h3 className="text-xs text-slate-500 font-semibold mb-3">
-                      {section.title}
-                    </h3>
-                    <div
-                      className={`grid gap-y-1 ${
-                        index > 1
-                          ? "grid-flow-col grid-rows-6 gap-x-6 "
-                          : "grid-rows-3 grid-flow-col"
-                      }`}
-                    >
-                      {section.options.map((option) => (
-                        <div
-                          key={option.id}
-                          className="flex items-start space-x-3 "
-                        >
-                          <Checkbox
-                            id={option.id}
-                            /*   checked={} */
-                            className="mt-0.5"
-                          />
-                          <label
-                            htmlFor={option.id}
-                            className="text-sm font-medium max-w-[200px] cursor-pointer"
-                          >
-                            {option.label}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </PopoverContent>
-            </Popover>
-            <Button
-              variant={"outline"}
-              size={"sm"}
-              className="rounded-full py-3 text-sm bg-transparent text-slate-500 px-2"
-            >
-              Reset <RotateCcw size={9} />
-            </Button>
-          </div>
+        <div className="flex gap-4 items-center mt-1">
+          <Filter
+            label="Filter"
+            data={filterChecklist}
+            selectedFilter={selectedFilter}
+            setSelectedFilter={(data: string) =>
+              setSelectedFilter((currentData: any) =>
+                currentData.includes(data)
+                  ? currentData.filter((item: string) => item !== data)
+                  : [...currentData, data]
+              )
+            }
+            reset={() => setSelectedFilter([])}
+          />
         </div>
         <Table>
           <TableHeader>
@@ -311,7 +260,7 @@ export default function Entries() {
                               : "text-emerald-500"
                           } font-bold flex gap-1 items-center whitespace-nowrap`}
                         >
-                          {filterParams === "final" && (
+                          {filterParams === "Final" && (
                             <Lock size={12} className="" />
                           )}
                           {item.status} |{" "}
@@ -373,7 +322,7 @@ export default function Entries() {
                       <Link
                         href={{
                           pathname: "/entries/entry",
-                          query: { id: item?._id },
+                          query: { id: item?._id, filter: filterParams },
                         }}
                         draggable={false}
                         className="bg-[#DBEAFE] h-[24px] whitespace-nowrap hover:bg-[#bcd9ff] w-fit text-xs text-[#1E40AF] px-1.5 rounded-full flex gap-1 items-center p-1"

@@ -121,7 +121,6 @@ export default function SideBar() {
                                       : "text-slate-400 "
                                   }`}
                                 />
-
                                 {!isCollapsed && (
                                   <m.p
                                     className={` text-sm font-semibold text-nowrap ${

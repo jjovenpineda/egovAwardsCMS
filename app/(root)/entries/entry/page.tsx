@@ -68,7 +68,7 @@ export default function Page() {
   return (
     <div className=" max-w-[80%]">
       <Button
-        onClick={() => router.push(`/entries?filter=all`)}
+        onClick={() => router.back()}
         variant={"secondary"}
         className=" bg-slate-100 hover:bg-slate-200 font-semibold"
       >
@@ -128,9 +128,9 @@ export default function Page() {
                             entryInfo?.authRepData?.lastname +
                             "" +
                             entryInfo?.authRepData?.suffix
-                          : item.value.includes("authRepData")
-                          ? entryInfo?.[item.value.split(".")[0]][
-                              item.value.split(".")[1]
+                          : item?.value?.includes("authRepData")
+                          ? entryInfo?.[item?.value?.split(".")[0]][
+                              item?.value?.split(".")[1]
                             ]
                           : entryInfo?.[item.value]}
                       </div>

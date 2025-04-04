@@ -56,7 +56,7 @@ import { toast } from "@/hooks/use-toast";
 import Loaders from "@/components/loaders";
 import CustomPagination from "@/components/shared/pagination";
 import Filter from "@/components/shared/filter";
-const filterChecklist = [
+export const filterChecklist = [
   {
     title: "FILTER BY STATUS",
     options: ["Select All", "For Review", "Graded"],
