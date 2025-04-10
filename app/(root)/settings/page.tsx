@@ -1,69 +1,26 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import pdf from "@/public/assets/images/pdf.svg";
-
-import Image from "next/image";
+import React, { useEffect, useState } from "react";
 
 import * as Yup from "yup";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import {
-  ArrowLeftRightIcon,
-  CheckCircle2,
-  ChevronDown,
-  Globe,
-  KeyRoundIcon,
-  LandmarkIcon,
-  Mail,
-  MinusCircle,
-  Phone,
-  Save,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { KeyRoundIcon, Mail, Save } from "lucide-react";
 
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 import { apiGet, apiPost, apiPut } from "@/utils/api";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import FileViewer from "@/components/shared/file-viewer";
 import Loaders from "@/components/loaders";
 import { m } from "motion/react";
 import { getUserInfo } from "@/utils/utility";
-interface ILGU {
-  lgu: string;
-  province: string;
-  region: string;
-  tenDigitCode: string;
-}
+
 export default function Page() {
-  const [page, setPage] = useState(1);
   const [isLinkSent, setIsLinkSent] = useState(false);
-  const [active, setActive] = useState(false);
   const [isloaded, setIsLoaded] = useState(false);
-  const [LguList, setLguList] = useState<ILGU[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [lguPopover, setLguPopover] = useState(false);
-  const [selectedPage, setSelectedPage] = useState("lgu");
   const [pwdBtnLoading, setPwdBtnLoading] = useState(false);
   const [userInfo, setUserInfo] = useState<any>({});
-  const getLGUList = async () => {
-    try {
-      const res = await apiGet("/api/lgu/list");
-      const { data } = res;
-      if (!data) return;
-      setLguList(data);
-    } catch (e) {
-      console.error("Error fetching LGU list:", e);
-    }
-  };
+
   const getUser = async () => {
     try {
       const { _id } = getUserInfo();
@@ -72,11 +29,10 @@ export default function Page() {
       if (!data) return;
       setUserInfo(data);
     } catch (e) {
-      console.error("Error fetching LGU list:", e);
+      console.error("Error fetching User list:", e);
     }
   };
   useEffect(() => {
-    getLGUList();
     getUser();
     setIsLoaded(true);
   }, []);
@@ -176,7 +132,7 @@ export default function Page() {
                           />
                         </div>
                       </div>
-                      <div className="relative  justify-self-end  md:justify-self-start">
+                      <div className="relative justify-self-end  md:justify-self-start">
                         <Button
                           type="button"
                           onClick={() => {
@@ -191,7 +147,7 @@ export default function Page() {
                                   setIsLinkSent(true);
 
                                   setPwdBtnLoading(false);
-                                  setTimeout(() => setIsLinkSent(false), 5000);
+                                  setTimeout(() => setIsLinkSent(false), 10000);
                                 }
                               } catch (e) {
                                 console.error("Error:", e);
@@ -226,11 +182,10 @@ export default function Page() {
                           <m.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="text-xs text-emerald-500 pt-1 max-w-[70%] relative col-span-2 "
+                            className="text-xs text-emerald-500 pt-1 max-w-[75%]  relative col-span-2 "
                           >
-                            Please check your email for the password reset link.
-                            If you haven’t received it, ensure that you have
-                            entered the correct email address.{" "}
+                            Password reset link sent. Please check your email
+                            for the password reset link.
                           </m.p>
                         )}
                       </div>

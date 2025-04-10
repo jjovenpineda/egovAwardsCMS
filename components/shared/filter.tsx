@@ -30,7 +30,7 @@ export default function Filter({
   >([]);
 
   return (
-    <div className="mx-2">
+    <div className="">
       <Label className="font-semibold text-xs text-slate-500">{label}</Label>
       <m.div
         initial={{ width: "fit-content", opacity: 0.8, paddingRight: 0 }}
@@ -73,14 +73,34 @@ export default function Filter({
                                   duration: 0.2,
                                   ease: "easeInOut",
                                 }}
-                                className="flex gap-1 items-center border p-1 px-1.5 rounded-full text-xs font-medium text-[#6B7280] ml-2"
+                                className={`${
+                                  item == "Graded"
+                                    ? "text-teal-600 border-green-300"
+                                    : item == "For Review"
+                                    ? "text-orange-400 border-orange-300"
+                                    : ""
+                                } flex gap-1 items-center border p-1 px-1.5 rounded-full text-xs font-medium text-[#6B7280] ml-2`}
                               >
                                 <div className="whitespace-nowrap">{item}</div>
-                                <div className="flex items-center  shrink-0 justify-center bg-[#E5E7EB] cursor-pointer hover:bg-red-400 transition-color duration-200 rounded-full size-3.5 ">
+                                <div
+                                  className={`flex items-center  shrink-0 justify-center bg-[#E5E7EB] cursor-pointer hover:bg-red-400 transition-color duration-200 rounded-full size-3.5 ${
+                                    item == "Graded"
+                                      ? " bg-green-100 hover:bg-green-400"
+                                      : item == "For Review"
+                                      ? " bg-orange-100 hover:bg-orange-400"
+                                      : ""
+                                  }`}
+                                >
                                   <X
                                     size={10}
                                     onClick={() => setSelectedFilter(item)}
-                                    className=" text-black "
+                                    className={`text-black ${
+                                      item == "Graded"
+                                        ? " text-green-800"
+                                        : item == "For Review"
+                                        ? " text-orange-800"
+                                        : ""
+                                    }`}
                                   />
                                 </div>
                               </m.div>

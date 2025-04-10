@@ -58,13 +58,14 @@ export default function SignInPage() {
               router.push("/");
             }, 2500);
           }, 2000);
-        } else if (message.includes("not authorized to login")) {
+        } else if (message.includes("not authorized")) {
           toast({
             title: "Access Denied",
             variant: "destructive",
             description: "Your role does not have permission to log in.",
             duration: 2000,
           });
+          setIsLoading(false);
         } else {
           toast({
             title: "Login failed",

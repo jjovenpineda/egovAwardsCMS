@@ -13,11 +13,19 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
+  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, {
+  ButtonHTMLAttributes,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import {
   Table,
@@ -29,15 +37,6 @@ import {
 } from "@/components/ui/table";
 import * as Yup from "yup";
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
@@ -49,34 +48,48 @@ import { Switch } from "@/components/ui/switch";
 import Loaders from "@/components/loaders";
 import Filter from "@/components/shared/filter";
 import CustomPagination from "@/components/shared/pagination";
+import { m } from "motion/react";
+import CustomSkeleton from "@/components/shared/custom-skeleton";
+import SwitchStatus from "@/components/shared/switch-status";
 
 export default function Page() {
   const [selectedFilter, setSelectedFilter] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoaded, setIsLoaded] = useState(false);
+
   const [debounceQuery, setDebounceQuery] = useState<any>(null);
   const [userlist, setUserList] = useState<any>([]);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
+  const switchRef = useRef<HTMLButtonElement>(null);
+  const [switchDialog, setSwitchDialog] = useState(false);
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebounceQuery(searchQuery);
     }, 500);
     return () => clearTimeout(handler);
   }, [searchQuery]);
-  const getUserList = async () => {
+
+  const getUserList = async (withLoading: boolean) => {
+    withLoading && setIsLoaded(true);
     try {
       const res = await apiGet(
-        `/api/auth/users/list?page=${page}&limit=${limit}&order=desc&roles=${selectedFilter}&search=${debounceQuery}`
-      );
+        `/api/auth/users/list?page=${page}&limit=${limit}&order=desc`
+      ); /* &roles=${selectedFilter}&search=${debounceQuery} */
       const { data } = res;
       if (!data) return;
       setUserList(data);
     } catch (e) {
       console.error("Error fetching users list:", e);
+    } finally {
+      withLoading &&
+        setTimeout(() => {
+          setIsLoaded(false);
+        }, 400);
     }
   };
   useEffect(() => {
-    getUserList();
+    getUserList(true);
   }, [page, selectedFilter, debounceQuery]);
 
   return (
@@ -85,152 +98,169 @@ export default function Page() {
       <h1 className="text-slate-600 font-bold text-2xl uppercase mb-4">
         Users
       </h1>
-      <div className="flex justify-between items-end">
-        <div className="flex w-full items-end gap-4 flex-wrap lg:flex-nowrap">
-          <div className="relative  w-full max-w-[343px]  ">
-            {" "}
-            <Input
-              type="text"
-              placeholder="Search User"
-              onChange={(e) => {
-                setTimeout(() => {
-                  setSearchQuery(e.target.value);
-                }, 500);
-              }}
-              className="pl-10 h-[46px]   rounded-lg"
-            />{" "}
-            <Search
-              size={15}
-              className="absolute -translate-y-1/2 top-1/2 left-3 text-slate-500"
-            />
-          </div>
-          <div>
-            <Filter
-              label="Filter By Role"
-              data={userlist?.roleList?.map((item: any) => item.name)}
-              selectedFilter={selectedFilter}
-              setSelectedFilter={(data: string) =>
-                setSelectedFilter((currentData) =>
-                  currentData.includes(data)
-                    ? currentData.filter((item: string) => item !== data)
-                    : [...currentData, data]
-                )
-              }
-              reset={() => setSelectedFilter([])}
-            />
-          </div>
-        </div>
-        <ManageUserModal
-          action="add"
-          data={userlist}
-          refresh={() => getUserList()}
+      {isLoaded ? (
+        <>
+          {" "}
+          <CustomSkeleton variant="table" />
+        </>
+      ) : (
+        <m.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="space-y-2"
         >
-          <Button variant={"primary"} size={"default"}>
-            <Plus size={15} />
-            Add User
-          </Button>
-        </ManageUserModal>{" "}
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {(() => {
-              const tableHeader = ["Name", "Email", "Role", "Status", "Action"];
-              return tableHeader.map((th, index) => (
-                <TableHead
-                  key={index}
-                  className={` font-medium ${
-                    th === "Name"
-                      ? "w-[167px]"
-                      : th == "Email"
-                      ? "w-[230px]"
-                      : th === "Role"
-                      ? "w-[500px]"
-                      : th === "Status"
-                      ? "w-[120px] text-center"
-                      : th === "Action"
-                      ? "w-[120px] text-center"
-                      : ""
-                  }`}
-                >
-                  {th}
-                </TableHead>
-              ));
-            })()}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {userlist?.users?.map((item: any, index: any) => (
-            <React.Fragment key={index}>
-              <TableRow
-                key={index}
-                className="border-b-0  hover:bg-transparent"
-              >
-                <TableCell className="font-medium text-base text-slate-900">
-                  {item.firstname} {item.lastname}
-                </TableCell>
-                <TableCell className="text-blue-500 text-base  font-normal">
-                  {item.email}
-                </TableCell>
-
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <CustomBadge
-                      color="gray"
+          <div className="flex justify-between items-end pb-4">
+            <div className="flex w-full items-end gap-4 flex-wrap lg:flex-nowrap">
+              <div className="relative  w-full max-w-[343px]  ">
+                {" "}
+                <Input
+                  type="text"
+                  placeholder="Search User"
+                  onChange={(e) => {
+                    setTimeout(() => {
+                      setSearchQuery(e.target.value);
+                    }, 500);
+                  }}
+                  className="pl-10 h-[46px]   rounded-lg"
+                />{" "}
+                <Search
+                  size={15}
+                  className="absolute -translate-y-1/2 top-1/2 left-3 text-slate-500"
+                />
+              </div>
+              <div>
+                <Filter
+                  label="Filter By Role"
+                  data={userlist?.roleList?.map((item: any) => item.name)}
+                  selectedFilter={selectedFilter}
+                  setSelectedFilter={(data: string) =>
+                    setSelectedFilter((currentData) =>
+                      currentData.includes(data)
+                        ? currentData.filter((item: string) => item !== data)
+                        : [...currentData, data]
+                    )
+                  }
+                  reset={() => setSelectedFilter([])}
+                />
+              </div>
+            </div>
+            <ManageUserModal
+              action="add"
+              data={userlist}
+              refresh={() => getUserList(true)}
+            >
+              <Button variant={"primary"} size={"default"}>
+                <Plus size={15} />
+                Add User
+              </Button>
+            </ManageUserModal>{" "}
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {(() => {
+                  const tableHeader = [
+                    "Name",
+                    "Email",
+                    "Role",
+                    "Status",
+                    "Action",
+                  ];
+                  return tableHeader.map((th, index) => (
+                    <TableHead
                       key={index}
-                      message={item?.roleName}
-                      className="text-[10px] rounded-full py-0 font-medium"
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="text-blue-500 text-base  font-normal">
-                  <div className="flex gap-1 items-center justify-start">
-                    <Switch
-                      color="green"
-                      className=""
-                      checked={item.isActive}
-                    />
-                    <div
-                      className={`text-[10px] font-medium ${
-                        item.isActive ? "text-slate-500" : "text-red-500"
+                      className={` font-medium ${
+                        th === "Action" ? "w-[120px] text-center" : ""
                       }`}
                     >
-                      {item.isActive ? "Activated" : "Deactivated"}
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="">
-                  <div className="flex justify-center gap-0.5 mx-auto">
-                    <ManageUserModal
-                      action="edit"
-                      data={userlist}
-                      selectedUserInfo={userlist.users.find(
-                        (user: any) => user._id === item._id
-                      )}
-                      refresh={() => getUserList()}
-                    >
-                      <Button variant="ghost" size={"icon"}>
-                        {" "}
-                        <Edit size={15} className="text-slate-500" />
-                      </Button>
-                    </ManageUserModal>{" "}
-                  </div>
-                </TableCell>
+                      {th}
+                    </TableHead>
+                  ));
+                })()}
               </TableRow>
-            </React.Fragment>
-          ))}
-        </TableBody>
-      </Table>
-      <div className="flex justify-between items-center text-base font-medium text-[#6B7280]">
-        <div>
-          Showing {(page - 1) * limit + 1} to{" "}
-          {userlist?.pages == page ? userlist?.totalItems : page * limit} of{" "}
-          {userlist?.totalItems} Users{" "}
-        </div>
-        <div>
-          <CustomPagination page={page} setPage={setPage} data={userlist} />
-        </div>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {userlist?.users?.map((item: any, index: any) => (
+                <React.Fragment key={index}>
+                  <TableRow
+                    key={index}
+                    className="border-b-0  hover:bg-transparent"
+                  >
+                    <TableCell className="font-medium text-base text-slate-900">
+                      {item.firstname} {item.lastname}
+                    </TableCell>
+                    <TableCell className="text-blue-500 text-base  font-normal">
+                      {item.email}
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <CustomBadge
+                          color="gray"
+                          key={index}
+                          message={item?.roleName}
+                          className="text-[10px] rounded-full py-0 font-medium"
+                        />
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-blue-500 text-base  font-normal">
+                      <div className="flex gap-1 items-center justify-start">
+                        <div className="mt-1.5">
+                          <SwitchStatus
+                            id={item._id}
+                            name={`${item.firstname} ${item.lastname}`}
+                            isActive={item.isActive}
+                            callBack={() => getUserList(false)}
+                            buttonRef={switchRef}
+                          />
+                        </div>
+
+                        <div
+                          className={`text-[10px] font-medium ${
+                            item.isActive ? "text-slate-500" : "text-red-500"
+                          }`}
+                        >
+                          {item.isActive ? "Activated" : "Deactivated"}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="">
+                      <div className="flex justify-center gap-0.5 mx-auto">
+                        <ManageUserModal
+                          deactivate={() => switchRef.current?.click()}
+                          action="edit"
+                          data={userlist}
+                          selectedUserInfo={userlist.users.find(
+                            (user: any) => user._id === item._id
+                          )}
+                          refresh={() => getUserList(true)}
+                        >
+                          <Button variant="ghost" size={"icon"}>
+                            {" "}
+                            <Edit size={15} className="text-slate-500" />
+                          </Button>
+                        </ManageUserModal>{" "}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                </React.Fragment>
+              ))}
+            </TableBody>
+          </Table>
+          <div className="flex justify-between items-center text-base font-medium text-[#6B7280]">
+            <div>
+              Showing {(page - 1) * limit + 1} to{" "}
+              {userlist?.pages == page ? userlist?.totalItems : page * limit} of{" "}
+              {userlist?.totalItems} Users{" "}
+            </div>
+            <div>
+              <CustomPagination page={page} setPage={setPage} data={userlist} />
+            </div>
+          </div>
+        </m.div>
+      )}
     </div>
   );
 }
@@ -238,6 +268,7 @@ interface IManageUserModal {
   children: ReactNode;
   action: string;
   data: any;
+  deactivate?: () => void;
   refresh: () => void;
   selectedUserInfo?: any;
 }
@@ -246,6 +277,7 @@ const ManageUserModal = ({
   action,
   data,
   refresh,
+  deactivate,
   selectedUserInfo,
 }: IManageUserModal) => {
   const [open, setOpen] = useState(false);
@@ -589,6 +621,9 @@ const ManageUserModal = ({
                         {action == "edit" && (
                           <Button
                             variant={"ghost"}
+                            onClick={() => {
+                              setOpen(false), deactivate && deactivate();
+                            }}
                             className="outline outline-1 outline-red-500 text-red-500 hover:bg-slate-100 hover:text-red-500"
                           >
                             Deactivate Account

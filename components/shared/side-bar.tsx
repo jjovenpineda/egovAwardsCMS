@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { useRouter } from "next/navigation";
-import { getUserInfo } from "@/utils/utility";
+import { deleteCookie, getUserInfo } from "@/utils/utility";
 import Image from "next/image";
 import {
   Accordion,
@@ -36,8 +36,10 @@ export default function SideBar() {
 
   const getInfo = () => {
     const info = getUserInfo();
-    if (info) {
-      setUserInfo(info);
+    if (!info?.isAdminUser) {
+      deleteCookie("authToken");
+      storage.removeAll();
+      router.push("/sign-in");
     }
   };
 
