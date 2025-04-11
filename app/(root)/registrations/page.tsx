@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import egovLogo from "@/public/assets/images/egovawardslogo.png";
 
 import pdf from "@/public/assets/images/pdf.svg";
 import Image from "next/image";
@@ -148,277 +149,301 @@ export default function Page() {
         {isLoading ? (
           <CustomSkeleton variant="table" />
         ) : (
-          <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="space-y-2"
-          >
-            <div className="text-xs mb-4 text-slate-500 font-semibold">
-              <div className="flex justify-between items-end">
-                <div className="flex gap-4 items-center mt-1">
-                  <Filter
-                    label="Filter"
-                    data={filterChecklist}
-                    selectedFilter={selectedFilter}
-                    setSelectedFilter={(data: string) =>
-                      setSelectedFilter((currentData: any) =>
-                        currentData.includes(data)
-                          ? currentData.filter((item: string) => item !== data)
-                          : [...currentData, data]
-                      )
-                    }
-                    reset={() => setSelectedFilter([])}
-                  />
-                </div>
-                <Popover>
-                  <PopoverTrigger className="text-slate-50 h-fit group text-sm font-semibold flex items-center gap-2 bg-[#2563EB] py-2 px-3 rounded-lg">
-                    <Download size={15} /> Download PDF
-                    <ChevronDown
-                      size={15}
-                      className="transition-transform duration-200 group-data-[state=open]:rotate-180"
-                    />
-                  </PopoverTrigger>
-                  <PopoverContent align="end">
-                    {(() => {
-                      const downloadOptions = [
-                        { label: "All Entries (1-145)" },
-                        { label: "Top 10" },
-                        { label: "Top 20" },
-                        { label: "Top 50" },
-                      ];
-                      return (
-                        <>
-                          <div>
-                            <ul className="text-sm ">
-                              {downloadOptions.map((item, index) => (
-                                <li
-                                  key={index}
-                                  className="flex items-center p-2 text-slate-900 hover:bg-slate-100 hover:text-blue-700 rounded-md cursor-pointer gap-3"
-                                >
-                                  <Download size={15} /> {item.label}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {(() => {
-                    const tableHeader = [
-                      "Authorized Representative",
-                      "LGU",
-                      "Proof",
-                      "Actions",
-                    ];
-                    return tableHeader.map((th, index) => (
-                      <TableHead
-                        key={index}
-                        className={` font-medium ${
-                          th === "Authorized Representative"
-                            ? ""
-                            : th == "LGU"
-                            ? ""
-                            : th === "Proof"
-                            ? "w-32"
-                            : th === "Actions"
-                            ? "w-[0] text-center"
-                            : ""
-                        }`}
-                      >
-                        <h3
-                          className={`${
-                            th === "No. of Entries" && "whitespace-nowrap"
-                          }`}
-                        >
-                          {th}
-                        </h3>
-                      </TableHead>
-                    ));
-                  })()}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(() => {
-                  return registrationsList?.registrants?.map(
-                    (item: any, index: any) => (
-                      <React.Fragment key={index}>
-                        <TableRow
-                          key={index}
-                          className="border-b-0 hover:bg-transparent"
-                        >
-                          <TableCell className="font-medium">
-                            <div className="text-base">
-                              <h2 className="text-slate-900 line-clamp-1">
-                                {item.firstname +
-                                  " " +
-                                  item.middlename +
-                                  " " +
-                                  item.lastname}
-                              </h2>{" "}
-                              <a
-                                href="#"
-                                className="line-clamp-1 text-blue-400 "
-                              >
-                                {item.email}
-                              </a>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <h2 className="text-slate-500 text-base line-clamp-1">
-                              {item.lgu + " " + item.province}
-                            </h2>{" "}
-                            <h2 className="text-slate-500 text-base line-clamp-1">
-                              {item.region}
-                            </h2>{" "}
-                          </TableCell>
-                          <TableCell>
-                            <ViewPDF
-                              url={item.authLetter}
-                              email={item.email}
-                              status={item.isApproved}
-                              fetchData={getRegistrationsList}
-                            >
-                              <div className="bg-slate-100 transition-colors hover:bg-slate-200 text-xs  text-slate-900 flex h-[20px] w-fit items-center justify-center gap-1 cursor-pointer whitespace-nowrap rounded-full  p-2">
-                                {" "}
-                                <Image src={pdf} alt="PDF Icon" />
-                                <span className="text-[10px]">
-                                  View PDF
-                                </span>{" "}
-                                <Eye size={10} className=" shrink-0" />
-                              </div>
-                            </ViewPDF>
-                          </TableCell>
-                          <TableCell className="flex flex-col text-center space-y-2">
-                            <Dialog>
-                              <DialogTrigger>
-                                <div className="bg-[#DBEAFE] flex  items-center  gap-1 whitespace-nowrap hover:bg-[#bcd9ff] text-xs text-[#1E40AF]  h-fit rounded-full w-min px-2 py-0.5">
-                                  <Eye size={10} className=" shrink-0" />
-                                  <div className="flex gap-1 text-[10px] ">
-                                    View Details
-                                  </div>
-                                </div>
-                              </DialogTrigger>
-                              <DialogContent className="w-full max-w-lg">
-                                <DialogHeader>
-                                  <DialogTitle>
-                                    {" "}
-                                    <div className="font-bold text-lg uppercase text-blue-900 mb-6">
-                                      Details
-                                    </div>
-                                  </DialogTitle>
-                                  <DialogDescription></DialogDescription>
-                                </DialogHeader>
+          <>
+            {registrationsList?.registrants?.length === 0 ? (
+              <>
+                {" "}
+                <m.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="max-w-[185px] text-center mx-auto pt-20"
+                >
+                  <Image src={egovLogo} alt="egov logo" className="size-full" />
+                  <h2 className="font-semibold text-slate-300 text-base">
+                    {" "}
+                    No Registrants Yet
+                  </h2>
+                </m.div>
+              </>
+            ) : (
+              <>
+                {" "}
+                <m.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="space-y-2"
+                >
+                  <div className="text-xs mb-4 text-slate-500 font-semibold">
+                    <div className="flex justify-between items-end">
+                      <div className="flex gap-4 items-center mt-1">
+                        <Filter
+                          label="Filter"
+                          data={filterChecklist}
+                          selectedFilter={selectedFilter}
+                          setSelectedFilter={(data: string) =>
+                            setSelectedFilter((currentData: any) =>
+                              currentData.includes(data)
+                                ? currentData.filter(
+                                    (item: string) => item !== data
+                                  )
+                                : [...currentData, data]
+                            )
+                          }
+                          reset={() => setSelectedFilter([])}
+                        />
+                      </div>
+                      <Popover>
+                        <PopoverTrigger className="text-slate-50 h-fit group text-sm font-semibold flex items-center gap-2 bg-[#2563EB] py-2 px-3 rounded-lg">
+                          <Download size={15} /> Download PDF
+                          <ChevronDown
+                            size={15}
+                            className="transition-transform duration-200 group-data-[state=open]:rotate-180"
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent align="end">
+                          {(() => {
+                            const downloadOptions = [
+                              { label: "All Entries (1-145)" },
+                              { label: "Top 10" },
+                              { label: "Top 20" },
+                              { label: "Top 50" },
+                            ];
+                            return (
+                              <>
                                 <div>
-                                  <h2 className="text-lg  text-gray-900">
-                                    {item?.lgu + " " + item?.province}
-                                  </h2>
-                                  <p className="text-[16px] text-gray-600">
-                                    {item?.region}
-                                  </p>
-
-                                  <div className="text-blue-500 font-medium text-[16px] mt-4 block">
-                                    Authorized Representative
-                                  </div>
-                                  <h3 className="text-lg font-medium text-gray-900 mt-1">
-                                    {item?.firstname +
-                                      " " +
-                                      item?.middlename +
-                                      " " +
-                                      item?.lastname}
-                                  </h3>
-                                  <p className="text-[16px] text-slate-700">
-                                    {item?.email}
-                                  </p>
-                                  <p className="text-[16px] text-slate-700">
-                                    {`+63${item?.mobile}`}
-                                  </p>
-
-                                  <div className="mt-8 text-[16px] text-slate-700 space-y-1">
-                                    <div className="flex break-all line-clamp-2">
-                                      <div className="text-slate-500 min-w-[200px]">
-                                        Name of LCE
-                                      </div>
-                                      : {item?.lceName}
-                                    </div>
-                                    <div className="flex break-all line-clamp-2">
-                                      <div className="text-slate-500 min-w-[200px] mb-4">
-                                        Name of Office in LGU
-                                      </div>
-                                      : {item?.officeName}
-                                    </div>
-                                    <div className="flex">
-                                      <div className="text-slate-500 min-w-[200px]">
-                                        Office Number
-                                      </div>
-                                      : {item?.officeNo}
-                                    </div>
-                                    <div className="flex break-all line-clamp-2">
-                                      <div className="text-slate-500 min-w-[200px]">
-                                        Website
-                                      </div>
-                                      : {item?.website}
-                                    </div>
-                                    <div className="flex break-all line-clamp-2">
-                                      <div className="text-slate-500 min-w-[200px] mb-4">
-                                        Facebook Page
-                                      </div>
-                                      : {item?.facebook}
-                                    </div>
-                                    <div className="flex">
-                                      <div className="text-slate-500 min-w-[200px]">
-                                        Number of Times Joined
-                                      </div>
-                                      : {item?.joinCount}
-                                    </div>
-                                  </div>
+                                  <ul className="text-sm ">
+                                    {downloadOptions.map((item, index) => (
+                                      <li
+                                        key={index}
+                                        className="flex items-center p-2 text-slate-900 hover:bg-slate-100 hover:text-blue-700 rounded-md cursor-pointer gap-3"
+                                      >
+                                        <Download size={15} /> {item.label}
+                                      </li>
+                                    ))}
+                                  </ul>
                                 </div>
-                              </DialogContent>
-                            </Dialog>
-                            {item.isApproved && (
-                              <div className="flex items-center justify-center gap-1 text-[#115E59] text-[10px] font-semibold">
-                                <Check size={13} /> <span>Verified</span>
-                              </div>
-                            )}
+                              </>
+                            );
+                          })()}
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {(() => {
+                          const tableHeader = [
+                            "Authorized Representative",
+                            "LGU",
+                            "Proof",
+                            "Actions",
+                          ];
+                          return tableHeader.map((th, index) => (
+                            <TableHead
+                              key={index}
+                              className={` font-medium ${
+                                th === "Authorized Representative"
+                                  ? ""
+                                  : th == "LGU"
+                                  ? ""
+                                  : th === "Proof"
+                                  ? "w-32"
+                                  : th === "Actions"
+                                  ? "w-[0] text-center"
+                                  : ""
+                              }`}
+                            >
+                              <h3
+                                className={`${
+                                  th === "No. of Entries" && "whitespace-nowrap"
+                                }`}
+                              >
+                                {th}
+                              </h3>
+                            </TableHead>
+                          ));
+                        })()}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(() => {
+                        return registrationsList?.registrants?.map(
+                          (item: any, index: any) => (
+                            <React.Fragment key={index}>
+                              <TableRow
+                                key={index}
+                                className="border-b-0 hover:bg-transparent"
+                              >
+                                <TableCell className="font-medium">
+                                  <div className="text-base">
+                                    <h2 className="text-slate-900 line-clamp-1">
+                                      {item.firstname +
+                                        " " +
+                                        item.middlename +
+                                        " " +
+                                        item.lastname}
+                                    </h2>{" "}
+                                    <a
+                                      href="#"
+                                      className="line-clamp-1 text-blue-400 "
+                                    >
+                                      {item.email}
+                                    </a>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <h2 className="text-slate-500 text-base line-clamp-1">
+                                    {item.lgu + " " + item.province}
+                                  </h2>{" "}
+                                  <h2 className="text-slate-500 text-base line-clamp-1">
+                                    {item.region}
+                                  </h2>{" "}
+                                </TableCell>
+                                <TableCell>
+                                  <ViewPDF
+                                    url={item.authLetter}
+                                    email={item.email}
+                                    status={item.isApproved}
+                                    fetchData={getRegistrationsList}
+                                  >
+                                    <div className="bg-slate-100 transition-colors hover:bg-slate-200 text-xs  text-slate-900 flex h-[20px] w-fit items-center justify-center gap-1 cursor-pointer whitespace-nowrap rounded-full  p-2">
+                                      {" "}
+                                      <Image src={pdf} alt="PDF Icon" />
+                                      <span className="text-[10px]">
+                                        View PDF
+                                      </span>{" "}
+                                      <Eye size={10} className=" shrink-0" />
+                                    </div>
+                                  </ViewPDF>
+                                </TableCell>
+                                <TableCell className="flex flex-col text-center space-y-2">
+                                  <Dialog>
+                                    <DialogTrigger>
+                                      <div className="bg-[#DBEAFE] flex  items-center  gap-1 whitespace-nowrap hover:bg-[#bcd9ff] text-xs text-[#1E40AF]  h-fit rounded-full w-min px-2 py-0.5">
+                                        <Eye size={10} className=" shrink-0" />
+                                        <div className="flex gap-1 text-[10px] ">
+                                          View Details
+                                        </div>
+                                      </div>
+                                    </DialogTrigger>
+                                    <DialogContent className="w-full max-w-lg">
+                                      <DialogHeader>
+                                        <DialogTitle>
+                                          {" "}
+                                          <div className="font-bold text-lg uppercase text-blue-900 mb-6">
+                                            Details
+                                          </div>
+                                        </DialogTitle>
+                                        <DialogDescription></DialogDescription>
+                                      </DialogHeader>
+                                      <div>
+                                        <h2 className="text-lg  text-gray-900">
+                                          {item?.lgu + " " + item?.province}
+                                        </h2>
+                                        <p className="text-[16px] text-gray-600">
+                                          {item?.region}
+                                        </p>
 
-                            {!item.isApproved && (
-                              <div className="text-center text-[#BF6A02] text-[10px] font-semibold">
-                                For Verification
-                              </div>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      </React.Fragment>
-                    )
-                  );
-                })()}
-              </TableBody>
-            </Table>
-            <div className="flex justify-between items-center text-base font-medium text-[#6B7280]">
-              <div>
-                Showing {(page - 1) * limit + 1} to{" "}
-                {registrationsList?.pages == page
-                  ? registrationsList?.totalItems
-                  : page * limit}{" "}
-                of {registrationsList?.totalItems} Participants{" "}
-              </div>
+                                        <div className="text-blue-500 font-medium text-[16px] mt-4 block">
+                                          Authorized Representative
+                                        </div>
+                                        <h3 className="text-lg font-medium text-gray-900 mt-1">
+                                          {item?.firstname +
+                                            " " +
+                                            item?.middlename +
+                                            " " +
+                                            item?.lastname}
+                                        </h3>
+                                        <p className="text-[16px] text-slate-700">
+                                          {item?.email}
+                                        </p>
+                                        <p className="text-[16px] text-slate-700">
+                                          {`+63${item?.mobile}`}
+                                        </p>
 
-              <div>
-                <CustomPagination
-                  page={page}
-                  setPage={(value: any) => setPage(value)}
-                  data={registrationsList}
-                />
-              </div>
-            </div>
-          </m.div>
+                                        <div className="mt-8 text-[16px] text-slate-700 space-y-1">
+                                          <div className="flex break-all line-clamp-2">
+                                            <div className="text-slate-500 min-w-[200px]">
+                                              Name of LCE
+                                            </div>
+                                            : {item?.lceName}
+                                          </div>
+                                          <div className="flex break-all line-clamp-2">
+                                            <div className="text-slate-500 min-w-[200px] mb-4">
+                                              Name of Office in LGU
+                                            </div>
+                                            : {item?.officeName}
+                                          </div>
+                                          <div className="flex">
+                                            <div className="text-slate-500 min-w-[200px]">
+                                              Office Number
+                                            </div>
+                                            : {item?.officeNo}
+                                          </div>
+                                          <div className="flex break-all line-clamp-2">
+                                            <div className="text-slate-500 min-w-[200px]">
+                                              Website
+                                            </div>
+                                            : {item?.website}
+                                          </div>
+                                          <div className="flex break-all line-clamp-2">
+                                            <div className="text-slate-500 min-w-[200px] mb-4">
+                                              Facebook Page
+                                            </div>
+                                            : {item?.facebook}
+                                          </div>
+                                          <div className="flex">
+                                            <div className="text-slate-500 min-w-[200px]">
+                                              Number of Times Joined
+                                            </div>
+                                            : {item?.joinCount}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </DialogContent>
+                                  </Dialog>
+                                  {item.isApproved && (
+                                    <div className="flex items-center justify-center gap-1 text-[#115E59] text-[10px] font-semibold">
+                                      <Check size={13} /> <span>Verified</span>
+                                    </div>
+                                  )}
+
+                                  {!item.isApproved && (
+                                    <div className="text-center text-[#BF6A02] text-[10px] font-semibold">
+                                      For Verification
+                                    </div>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            </React.Fragment>
+                          )
+                        );
+                      })()}
+                    </TableBody>
+                  </Table>
+                  <div className="flex justify-between items-center text-base font-medium text-[#6B7280]">
+                    <div>
+                      Showing {(page - 1) * limit + 1} to{" "}
+                      {registrationsList?.pages == page
+                        ? registrationsList?.totalItems
+                        : page * limit}{" "}
+                      of {registrationsList?.totalItems} Participants{" "}
+                    </div>
+
+                    <div>
+                      <CustomPagination
+                        page={page}
+                        setPage={(value: any) => setPage(value)}
+                        data={registrationsList}
+                      />
+                    </div>
+                  </div>
+                </m.div>
+              </>
+            )}
+          </>
         )}
       </div>
     </div>

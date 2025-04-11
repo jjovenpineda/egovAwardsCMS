@@ -51,18 +51,19 @@ import CustomPagination from "@/components/shared/pagination";
 import { m } from "motion/react";
 import CustomSkeleton from "@/components/shared/custom-skeleton";
 import SwitchStatus from "@/components/shared/switch-status";
-
+import Image from "next/image";
+import egovLogo from "@/public/assets/images/egovawardslogo.png";
 export default function Page() {
   const [selectedFilter, setSelectedFilter] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
-
   const [debounceQuery, setDebounceQuery] = useState<any>(null);
   const [userlist, setUserList] = useState<any>([]);
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const switchRef = useRef<HTMLButtonElement>(null);
-  const [switchDialog, setSwitchDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>({});
+  const [statusDialog, setStatusDialog] = useState(false);
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebounceQuery(searchQuery);
@@ -156,111 +157,152 @@ export default function Page() {
               </Button>
             </ManageUserModal>{" "}
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {(() => {
-                  const tableHeader = [
-                    "Name",
-                    "Email",
-                    "Role",
-                    "Status",
-                    "Action",
-                  ];
-                  return tableHeader.map((th, index) => (
-                    <TableHead
-                      key={index}
-                      className={` font-medium ${
-                        th === "Action" ? "w-[120px] text-center" : ""
-                      }`}
-                    >
-                      {th}
-                    </TableHead>
-                  ));
-                })()}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {userlist?.users?.map((item: any, index: any) => (
-                <React.Fragment key={index}>
-                  <TableRow
-                    key={index}
-                    className="border-b-0  hover:bg-transparent"
-                  >
-                    <TableCell className="font-medium text-base text-slate-900">
-                      {item.firstname} {item.lastname}
-                    </TableCell>
-                    <TableCell className="text-blue-500 text-base  font-normal">
-                      {item.email}
-                    </TableCell>
-
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <CustomBadge
-                          color="gray"
+          {userlist?.users?.length === 0 ? (
+            <>
+              <m.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="max-w-[185px] text-center mx-auto pt-20"
+              >
+                <Image src={egovLogo} alt="egov logo" className="size-full" />
+                <h2 className="font-semibold text-slate-300 text-base">
+                  {" "}
+                  No Users Yet
+                </h2>
+              </m.div>
+            </>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {(() => {
+                      const tableHeader = [
+                        "Name",
+                        "Email",
+                        "Role",
+                        "Status",
+                        "Action",
+                      ];
+                      return tableHeader.map((th, index) => (
+                        <TableHead
                           key={index}
-                          message={item?.roleName}
-                          className="text-[10px] rounded-full py-0 font-medium"
-                        />
-                      </div>
-                    </TableCell>
-
-                    <TableCell className="text-blue-500 text-base  font-normal">
-                      <div className="flex gap-1 items-center justify-start">
-                        <div className="mt-1.5">
-                          <SwitchStatus
-                            id={item._id}
-                            name={`${item.firstname} ${item.lastname}`}
-                            isActive={item.isActive}
-                            callBack={() => getUserList(false)}
-                            buttonRef={switchRef}
-                          />
-                        </div>
-
-                        <div
-                          className={`text-[10px] font-medium ${
-                            item.isActive ? "text-slate-500" : "text-red-500"
+                          className={` font-medium ${
+                            th === "Action" ? "w-[120px] text-center" : ""
                           }`}
                         >
-                          {item.isActive ? "Activated" : "Deactivated"}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="">
-                      <div className="flex justify-center gap-0.5 mx-auto">
-                        <ManageUserModal
-                          deactivate={() => switchRef.current?.click()}
-                          action="edit"
-                          data={userlist}
-                          selectedUserInfo={userlist.users.find(
-                            (user: any) => user._id === item._id
-                          )}
-                          refresh={() => getUserList(true)}
-                        >
-                          <Button variant="ghost" size={"icon"}>
-                            {" "}
-                            <Edit size={15} className="text-slate-500" />
-                          </Button>
-                        </ManageUserModal>{" "}
-                      </div>
-                    </TableCell>
+                          {th}
+                        </TableHead>
+                      ));
+                    })()}
                   </TableRow>
-                </React.Fragment>
-              ))}
-            </TableBody>
-          </Table>
-          <div className="flex justify-between items-center text-base font-medium text-[#6B7280]">
-            <div>
-              Showing {(page - 1) * limit + 1} to{" "}
-              {userlist?.pages == page ? userlist?.totalItems : page * limit} of{" "}
-              {userlist?.totalItems} Users{" "}
-            </div>
-            <div>
-              <CustomPagination page={page} setPage={setPage} data={userlist} />
-            </div>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {userlist?.users?.map((item: any, index: any) => (
+                    <React.Fragment key={index}>
+                      <TableRow
+                        key={index}
+                        className="border-b-0  hover:bg-transparent"
+                      >
+                        <TableCell className="font-medium text-base text-slate-900">
+                          {item.firstname} {item.lastname}
+                        </TableCell>
+                        <TableCell className="text-blue-500 text-base  font-normal">
+                          {item.email}
+                        </TableCell>
+
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <CustomBadge
+                              color="gray"
+                              key={index}
+                              message={item?.roleName}
+                              className="text-[10px] rounded-full py-0 font-medium"
+                            />
+                          </div>
+                        </TableCell>
+
+                        <TableCell className="text-blue-500 text-base  font-normal">
+                          <div className="flex gap-1 items-center justify-start">
+                            <div className="mt-1.5">
+                              <div>
+                                <Switch
+                                  onClick={() => {
+                                    setStatusDialog(true);
+                                    setSelectedUser(item);
+                                  }}
+                                  color="green"
+                                  className=""
+                                  checked={item.isActive}
+                                />
+                              </div>
+                            </div>
+
+                            <div
+                              className={`text-[10px] font-medium ${
+                                item.isActive
+                                  ? "text-slate-500"
+                                  : "text-red-500"
+                              }`}
+                            >
+                              {item.isActive ? "Activated" : "Deactivated"}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="">
+                          <div className="flex justify-center gap-0.5 mx-auto">
+                            <ManageUserModal
+                              setStatus={() => setStatusDialog(true)}
+                              action="edit"
+                              data={userlist}
+                              selectedUserInfo={userlist.users.find(
+                                (user: any) => user._id === item._id
+                              )}
+                              refresh={() => getUserList(true)}
+                            >
+                              <Button
+                                onClick={() => {
+                                  setSelectedUser(item);
+                                }}
+                                variant="ghost"
+                                size={"icon"}
+                              >
+                                <Edit size={15} className="text-slate-500" />
+                              </Button>
+                            </ManageUserModal>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    </React.Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="flex justify-between items-center text-base font-medium text-[#6B7280]">
+                <div>
+                  Showing {(page - 1) * limit + 1} to{" "}
+                  {userlist?.pages == page
+                    ? userlist?.totalItems
+                    : page * limit}{" "}
+                  of {userlist?.totalItems} Users{" "}
+                </div>
+                <div>
+                  <CustomPagination
+                    page={page}
+                    setPage={setPage}
+                    data={userlist}
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </m.div>
       )}
+      <SwitchStatus
+        open={statusDialog}
+        userData={selectedUser}
+        setOpen={() => setStatusDialog(false)}
+        callBack={() => getUserList(false)}
+      />
     </div>
   );
 }
@@ -268,7 +310,7 @@ interface IManageUserModal {
   children: ReactNode;
   action: string;
   data: any;
-  deactivate?: () => void;
+  setStatus?: () => void;
   refresh: () => void;
   selectedUserInfo?: any;
 }
@@ -277,7 +319,7 @@ const ManageUserModal = ({
   action,
   data,
   refresh,
-  deactivate,
+  setStatus,
   selectedUserInfo,
 }: IManageUserModal) => {
   const [open, setOpen] = useState(false);
@@ -618,17 +660,37 @@ const ManageUserModal = ({
                           action == "edit" && "justify-between"
                         }`}
                       >
-                        {action == "edit" && (
-                          <Button
-                            variant={"ghost"}
-                            onClick={() => {
-                              setOpen(false), deactivate && deactivate();
-                            }}
-                            className="outline outline-1 outline-red-500 text-red-500 hover:bg-slate-100 hover:text-red-500"
-                          >
-                            Deactivate Account
-                          </Button>
+                        {selectedUserInfo?.isActive && action == "edit" ? (
+                          <>
+                            {
+                              <Button
+                                variant={"ghost"}
+                                onClick={() => {
+                                  setOpen(false), setStatus && setStatus();
+                                }}
+                                className="outline outline-1 outline-red-500 text-red-500 hover:bg-slate-100 hover:text-red-500"
+                              >
+                                Deactivate Account
+                              </Button>
+                            }
+                          </>
+                        ) : (
+                          <>
+                            {" "}
+                            {
+                              <Button
+                                variant={"ghost"}
+                                onClick={() => {
+                                  setOpen(false), setStatus && setStatus();
+                                }}
+                                className="outline outline-1 outline-teal-500 text-teal-500 hover:bg-slate-100 hover:text-teal-500"
+                              >
+                                Activate Account
+                              </Button>
+                            }
+                          </>
                         )}
+
                         <div className="flex gap-4">
                           <DialogClose
                             type="button"

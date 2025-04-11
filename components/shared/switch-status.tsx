@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Dialog,
   DialogClose,
@@ -14,20 +14,21 @@ import { Button } from "../ui/button";
 import { apiPut } from "@/utils/api";
 import { Switch } from "../ui/switch";
 interface ISwitchStatus {
-  id: string;
-  name: string;
-  isActive: boolean;
-  buttonRef: React.RefObject<HTMLButtonElement>;
-
+  open: boolean;
+  userData: any;
+  setOpen: (value: boolean) => void;
   callBack: (value: boolean) => void;
 }
 export default function SwitchStatus({
-  id,
-  name,
-  isActive,
-  buttonRef,
+  open,
+  setOpen,
+  userData,
   callBack,
 }: ISwitchStatus) {
+  useEffect(() => {
+    console.log("userData :", userData);
+  }, [userData]);
+
   const handleUserStatus = async (id: string) => {
     try {
       const res = await apiPut(`/api/auth/toggle/userStatus/${id}`, "");
@@ -40,20 +41,20 @@ export default function SwitchStatus({
   return (
     <div>
       {" "}
-      <Dialog>
-        <DialogTrigger ref={buttonRef} asChild className="">
-          <div>
-            <Switch color="green" className="" checked={isActive} />
-          </div>
-        </DialogTrigger>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger className=""></DialogTrigger>
         <DialogContent className="sm:max-w-[425px] text-center">
           <DialogHeader>
             <DialogTitle>
-              {isActive ? "Deactivate User" : "Activate User"}
+              {userData?.isActive ? "Deactivate User" : "Activate User"}
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to {isActive ? "deactivate" : "activate"}
-              <span className=" px-1 font-semibold">{name}</span>?
+              Are you sure you want to{" "}
+              {userData?.isActive ? "deactivate" : "activate"}
+              <span className=" px-1 font-semibold">
+                {userData?.firstname + "" + userData?.lastname}
+              </span>
+              ?
             </DialogDescription>
           </DialogHeader>
 
@@ -65,10 +66,15 @@ export default function SwitchStatus({
             <DialogClose asChild>
               <Button
                 type="button"
-                variant={isActive ? "destructive" : "default"}
-                onClick={() => handleUserStatus(id)}
+                variant={"default"}
+                onClick={() => handleUserStatus(userData?._id)}
+                className={`transition-colors duration-300 ease-in-out ${
+                  !userData?.isActive
+                    ? "bg-teal-500 hover:bg-teal-600"
+                    : "bg-red-500 hover:bg-red-600"
+                }`}
               >
-                {isActive ? "Deactivate" : "Activate"}
+                {userData?.isActive ? "Deactivate" : "Activate"}
               </Button>
             </DialogClose>
           </DialogFooter>

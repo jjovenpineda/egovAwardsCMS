@@ -3,7 +3,8 @@ import { Input } from "@/components/ui/input";
 
 import { Switch } from "@/components/ui/switch";
 import * as Yup from "yup";
-
+import Image from "next/image";
+import egovLogo from "@/public/assets/images/egovawardslogo.png";
 import { ChevronDown, Edit, Plus, Save, Trash2, X } from "lucide-react";
 import {
   Dialog,
@@ -100,87 +101,107 @@ export default function Page() {
               </Button>
             </ManageRoleModal>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {(() => {
-                  const tableHeader = ["Role Name", "Status", "Action"];
-                  return tableHeader.map((th, index) => (
-                    <TableHead
-                      key={index}
-                      className={` font-medium ${
-                        th === "Role Name"
-                          ? "w-[400px]"
-                          : th == "Status"
-                          ? "w-[0px] text-center"
-                          : th === "Action"
-                          ? "w-[0px] text-center"
-                          : ""
-                      }`}
-                    >
-                      {th}
-                    </TableHead>
-                  ));
-                })()}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rolesList?.roles?.map((item: any, index: any) => (
-                <React.Fragment key={index}>
-                  <TableRow
-                    key={index}
-                    className="border-b-0 hover:bg-transparent"
-                  >
-                    <TableCell className="font-medium text-base text-slate-900">
-                      {item.name}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center">
-                        <Switch
-                          color="green"
-                          className=""
-                          checked={item.isActive}
-                          /*                       onCheckedChange={field.onChange}
-                           */
-                        />
-                      </div>
-                    </TableCell>
-
-                    <TableCell className="">
-                      <div className="flex justify-center gap-0.5 mx-auto">
-                        <ManageRoleModal
-                          action="edit"
-                          data={rolesList.permissions}
-                          selectedRoleInfo={rolesList.roles.find(
-                            (role: any) => role._id === item._id
-                          )}
-                          refresh={() => getRolesList()}
+          {rolesList?.roles?.length === 0 ? (
+            <>
+              {" "}
+              <m.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="max-w-[185px] text-center mx-auto pt-20"
+              >
+                <Image src={egovLogo} alt="egov logo" className="size-full" />
+                <h2 className="font-semibold text-slate-300 text-base">
+                  {" "}
+                  No Roles Yet
+                </h2>
+              </m.div>
+            </>
+          ) : (
+            <>
+              {" "}
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {(() => {
+                      const tableHeader = ["Role Name", "Status", "Action"];
+                      return tableHeader.map((th, index) => (
+                        <TableHead
+                          key={index}
+                          className={` font-medium ${
+                            th === "Role Name"
+                              ? "w-[400px]"
+                              : th == "Status"
+                              ? "w-[0px] text-center"
+                              : th === "Action"
+                              ? "w-[0px] text-center"
+                              : ""
+                          }`}
                         >
-                          <Button variant="ghost" size={"icon"}>
-                            {" "}
-                            <Edit size={15} className="text-slate-500" />
-                          </Button>
-                        </ManageRoleModal>{" "}
-                        {/*   <ManageRoleModal
-                       action="delete"
-                       data={rolesList.permissions}
-                       selectedRoleInfo={rolesList.roles.find(
-                         (role: any) => role._id === item._id
-                       )}
-                       refresh={() => getRolesList()}
-                     >
-                       <Button variant="ghost" size={"icon"}>
-                         {" "}
-                         <Trash2 size={15} className="text-red-500" />
-                       </Button>
-                     </ManageRoleModal>{" "} */}
-                      </div>
-                    </TableCell>
+                          {th}
+                        </TableHead>
+                      ));
+                    })()}
                   </TableRow>
-                </React.Fragment>
-              ))}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                  {rolesList?.roles?.map((item: any, index: any) => (
+                    <React.Fragment key={index}>
+                      <TableRow
+                        key={index}
+                        className="border-b-0 hover:bg-transparent"
+                      >
+                        <TableCell className="font-medium text-base text-slate-900">
+                          {item.name}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-center">
+                            <Switch
+                              color="green"
+                              className=""
+                              checked={item.isActive}
+                              /*                       onCheckedChange={field.onChange}
+                               */
+                            />
+                          </div>
+                        </TableCell>
+
+                        <TableCell className="">
+                          <div className="flex justify-center gap-0.5 mx-auto">
+                            <ManageRoleModal
+                              action="edit"
+                              data={rolesList.permissions}
+                              selectedRoleInfo={rolesList.roles.find(
+                                (role: any) => role._id === item._id
+                              )}
+                              refresh={() => getRolesList()}
+                            >
+                              <Button variant="ghost" size={"icon"}>
+                                {" "}
+                                <Edit size={15} className="text-slate-500" />
+                              </Button>
+                            </ManageRoleModal>{" "}
+                            {/*   <ManageRoleModal
+                     action="delete"
+                     data={rolesList.permissions}
+                     selectedRoleInfo={rolesList.roles.find(
+                       (role: any) => role._id === item._id
+                     )}
+                     refresh={() => getRolesList()}
+                   >
+                     <Button variant="ghost" size={"icon"}>
+                       {" "}
+                       <Trash2 size={15} className="text-red-500" />
+                     </Button>
+                   </ManageRoleModal>{" "} */}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    </React.Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+            </>
+          )}
         </m.div>
       )}
     </div>
